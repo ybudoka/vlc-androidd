@@ -98,6 +98,9 @@ class PlaylistViewModel(context: Context, private val initialPlaylist: MediaLibr
     suspend fun toggleFavorite() = withContext(Dispatchers.IO) {
         playlist?.let { it.setFavorite(!it.isFavorite) }
     }
+
+    override fun watchSubscriptions() {
+    }
 }
 
 internal fun HeaderMediaListActivity.getViewModel(playlist: MediaLibraryItem) = ViewModelProvider(this, PlaylistViewModel.Factory(this, playlist))[PlaylistViewModel::class.java]
