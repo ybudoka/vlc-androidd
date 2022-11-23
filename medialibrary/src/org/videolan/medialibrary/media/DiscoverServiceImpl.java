@@ -8,8 +8,8 @@ import org.videolan.medialibrary.interfaces.media.MediaWrapper;
 import org.videolan.medialibrary.interfaces.media.Subscription;
 
 public class DiscoverServiceImpl extends DiscoverService {
-    public DiscoverServiceImpl(Type type) {super(type);}
-    DiscoverServiceImpl(int type) {super(type);}
+    public DiscoverServiceImpl(Type type, int nbUnplayedMedia, int nbMedia, int nbSubscriptions) {super(type, nbUnplayedMedia, nbMedia, nbSubscriptions);}
+    DiscoverServiceImpl(int type, int nbUnplayedMedia, int nbMedia, int nbSubscriptions) {super(type, nbUnplayedMedia, nbMedia, nbSubscriptions);}
 
     public DiscoverServiceImpl(Parcel source) {
         super(source);

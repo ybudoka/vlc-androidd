@@ -2144,14 +2144,14 @@ setMaxCacheSize(JNIEnv* env, jobject thiz, jobject medialibrary, jlong size)
     return aml->setMaxCacheSize(size);
 }
 
-jint 
+jint
 getSubscriptionMaxCachedMedia(JNIEnv* env, jobject thiz, jobject medialibrary)
 {
     AndroidMediaLibrary *aml = MediaLibrary_getInstance(env, medialibrary);
     return aml->getSubscriptionMaxCachedMedia();
 }
 
-jlong 
+jlong
 getMlSubscriptionMaxCacheSize(JNIEnv* env, jobject thiz, jobject medialibrary)
 {
     AndroidMediaLibrary *aml = MediaLibrary_getInstance(env, medialibrary);
@@ -2165,7 +2165,7 @@ getMaxCacheSize(JNIEnv* env, jobject thiz, jobject medialibrary)
     return aml->getMaxCacheSize();
 }
 
-jboolean 
+jboolean
 refreshAllSubscriptions(JNIEnv* env, jobject thiz, jobject ml)
 {
         AndroidMediaLibrary *aml = MediaLibrary_getInstance(env, ml);
@@ -2829,7 +2829,7 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
     GET_ID(GetMethodID,
             ml_fields.Service.initID,
             ml_fields.Service.clazz,
-            "<init>", "(I)V");
+            "<init>", "(IIII)V");
 
     GET_CLASS(ml_fields.Subscription.clazz, "org/videolan/medialibrary/media/SubscriptionImpl", true);
     if (env->RegisterNatives(ml_fields.Subscription.clazz, subscription_methods, sizeof(subscription_methods) / sizeof(subscription_methods[0])) < 0) {
@@ -2839,7 +2839,7 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
     GET_ID(GetMethodID,
             ml_fields.Subscription.initID,
             ml_fields.Subscription.clazz,
-            "<init>", "(JILjava/lang/String;J)V");
+            "<init>", "(JILjava/lang/String;JII)V");
 
     GET_CLASS(ml_fields.MediaWrapper.clazz,
               "org/videolan/medialibrary/media/MediaWrapperImpl", true);

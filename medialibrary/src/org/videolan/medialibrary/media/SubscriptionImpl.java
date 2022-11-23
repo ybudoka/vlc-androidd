@@ -1,5 +1,7 @@
 package org.videolan.medialibrary.media;
 
+import android.os.Parcel;
+
 import androidx.annotation.Nullable;
 
 import org.videolan.medialibrary.interfaces.Medialibrary;
@@ -9,12 +11,16 @@ import org.videolan.medialibrary.interfaces.media.Subscription;
 
 public class SubscriptionImpl extends Subscription {
 
-    SubscriptionImpl(long id, DiscoverService.Type type, String name, long parentId) {
-        super(id, type, name, parentId);
+    SubscriptionImpl(long id, DiscoverService.Type type, String name, long parentId, int nbMedia, int nbUpplayedMedia) {
+        super(id, type, name, parentId, nbMedia, nbUpplayedMedia);
     }
 
-    SubscriptionImpl(long id, int type, String name, long parentId) {
-        super(id, type, name, parentId);
+    SubscriptionImpl(long id, int type, String name, long parentId, int nbMedia, int nbUpplayedMedia) {
+        super(id, type, name, parentId, nbMedia, nbUpplayedMedia);
+    }
+
+    public SubscriptionImpl(Parcel source) {
+        super(source);
     }
 
     @Override

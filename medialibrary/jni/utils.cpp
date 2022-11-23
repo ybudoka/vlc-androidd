@@ -246,7 +246,7 @@ convertSubscriptionObject(JNIEnv* env, fields *fields, medialibrary::Subscriptio
     auto parent = subsPtr->parent();
     jlong parentId = (parent != nullptr) ? (jlong) parent->id() : 0;
     return utils::jni::object{ env, env->NewObject(fields->Subscription.clazz, fields->Subscription.initID,
-            (jlong) subsPtr->id(), (jint) subsPtr->service(), name.get(), parentId)
+            (jlong) subsPtr->id(), (jint) subsPtr->service(), name.get(), parentId, (jint) subsPtr->nbMedia(), (jint) subsPtr->nbUnplayedMedia())
     };
 }
 
@@ -254,7 +254,7 @@ utils::jni::object
 convertServiceObject(JNIEnv* env, fields *fields, medialibrary::ServicePtr const& servicePtr)
 {
     return utils::jni::object{ env, env->NewObject(fields->Service.clazz,
-            fields->Service.initID, (jint) servicePtr->type())
+            fields->Service.initID, (jint) servicePtr->type(), (jint) servicePtr->nbMedia(), (jint) servicePtr->nbUnplayedMedia(), (jint) servicePtr->nbSubscriptions())
     };
 }
 
