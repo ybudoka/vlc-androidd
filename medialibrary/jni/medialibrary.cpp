@@ -932,6 +932,22 @@ getPagedPlaylists(JNIEnv* env, jobject thiz, medialibrary::PlaylistType type, ji
     return playlistRefs;
 }
 
+jobjectArray
+getAllSubscriptionMedia(JNIEnv* env, jobject thiz, jint sortingCriteria, jboolean desc, jboolean includeMissing, jboolean onlyFavorites,  jint nbItems,  jint offset)
+{
+    AndroidMediaLibrary *aml = MediaLibrary_getInstance(env, thiz);
+    medialibrary::QueryParameters params = generateParams(sortingCriteria, desc, includeMissing, onlyFavorites);
+    const auto query = aml->subscriptionMedia(&params);
+    std::vector<medialibrary::MediaPtr> playlists = nbItems != 0 ? query->items(nbItems, offset) : query->all();
+    jobjectArray mediaList = (jobjectArray) env->NewObjectArray(playlists.size(), ml_fields.MediaWrapper.clazz, NULL);
+    int index = -1;
+    for(medialibrary::MediaPtr const& media : playlists) {
+        auto item = mediaToMediaWrapper(env, &ml_fields, media);
+        env->SetObjectArrayElement(mediaList, ++index, item.get());
+    }
+    return mediaList;
+}
+
 jint
 getPlaylistsCount(JNIEnv* env, medialibrary::PlaylistType type, jobject thiz) {
     return (jint) MediaLibrary_getInstance(env, thiz)->playlists(type, nullptr)->count();
@@ -2462,6 +2478,29 @@ getSubscriptionMedia(JNIEnv* env, jobject thiz, jobject ml, jlong id, jint sorti
    return subsRefs;   
 }
 
+jobjectArray
+searchMediaFromSubscription(JNIEnv* env, jobject thiz, jobject medialibrary, jlong id, jstring filterQuery, jint sortingCriteria, jboolean desc, jboolean includeMissing, jboolean onlyFavorites,  jint nbItems,  jint offset)
+{
+    AndroidMediaLibrary *aml = MediaLibrary_getInstance(env, medialibrary);
+    medialibrary::QueryParameters params = generateParams(sortingCriteria, desc, includeMissing, onlyFavorites);
+    const char *queryChar = env->GetStringUTFChars(filterQuery, JNI_FALSE);
+    const auto query = aml->searchMediaFromSubscription(id, queryChar, &params);
+    if (query == nullptr)
+    {
+        env->ReleaseStringUTFChars(filterQuery, queryChar);
+        return (jobjectArray) env->NewObjectArray(0, ml_fields.MediaWrapper.clazz, NULL);
+    }
+    std::vector<medialibrary::MediaPtr> mediaList = nbItems != 0 ? query->items(nbItems, offset) : query->all();
+    jobjectArray mediaRefs = (jobjectArray) env->NewObjectArray(mediaList.size(), ml_fields.MediaWrapper.clazz, NULL);
+    int index = -1;
+    for(medialibrary::MediaPtr const& media : mediaList) {
+        auto item = mediaToMediaWrapper(env, &ml_fields, media);
+        env->SetObjectArrayElement(mediaRefs, ++index, item.get());
+    }
+    env->ReleaseStringUTFChars(filterQuery, queryChar);
+    return mediaRefs;
+}
+
 jint getSubscriptionNbMedia(JNIEnv* env, jobject thiz, jobject ml, jlong id)
 {
     AndroidMediaLibrary *aml = MediaLibrary_getInstance(env, ml);
@@ -2583,6 +2622,7 @@ static JNINativeMethod methods[] = {
     {"nativeCacheNewSubscriptionMedia", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;)V", (void*)cacheNewSubscriptionMedia},
     {"nativeSetSubscriptionMaxCachedMedia", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;I)Z", (void*)setSubscriptionMaxCachedMedia},
     {"nativeSetMlSubscriptionMaxCacheSize", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;J)Z", (void*)setMlSubscriptionMaxCacheSize},
+    {"nativeGetSubscriptionMedia", "(IZZZII)[Lorg/videolan/medialibrary/interfaces/media/MediaWrapper;", (void*)getAllSubscriptionMedia },
     {"nativeSetMaxCacheSize", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;J)Z", (void*)setMaxCacheSize},
     {"nativeGetSubscriptionMaxCachedMedia", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;)I", (void*)getSubscriptionMaxCachedMedia},
     {"nativeGetMlSubscriptionMaxCacheSize", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;)J", (void*)getMlSubscriptionMaxCacheSize},
@@ -2720,6 +2760,7 @@ static JNINativeMethod subscription_methods[] = {
     {"nativeGetParent", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;J)Lorg/videolan/medialibrary/interfaces/media/Subscription;", (void*)getParent},
     {"nativeSubscriptionRefresh", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;J)Z", (void*)refresh},
     {"nativeGetSubscriptionMedia", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;JIZZZ)[Lorg/videolan/medialibrary/interfaces/media/MediaWrapper;", (void*)getSubscriptionMedia},
+    {"nativeSearchMediaFromSubscription", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;JLjava/lang/String;IZZZII)[Lorg/videolan/medialibrary/interfaces/media/MediaWrapper;", (void*)searchMediaFromSubscription},
     {"nativeGetSubscriptionNbMedia", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;J)I", (void*)getSubscriptionNbMedia},
     {"nativeSubscriptionDelete", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;J)Z", (void*)subscriptionDelete },
 };
