@@ -363,6 +363,10 @@ const val KEY_SAFE_MODE = "safe_mode"
 
 const val KEY_LAST_SESSION_CRASHED = "last_session_crashed"
 
+//subs
+const val SUBSCRIPTION_CARD_MODE = "subscription_card_mode"
+
+
 const val ENABLE_ANDROID_AUTO_SPEED_BUTTONS = "enable_android_auto_speed_buttons"
 const val ENABLE_ANDROID_AUTO_SEEK_BUTTONS = "enable_android_auto_seek_buttons"
 
