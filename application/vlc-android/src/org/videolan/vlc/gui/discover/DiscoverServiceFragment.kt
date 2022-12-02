@@ -39,8 +39,7 @@ import org.videolan.vlc.viewmodels.subscription.getViewModel
 
 private const val TAG = "VLC/DiscoverServiceFragment"
 
-class DiscoverServiceFragment : MediaBrowserFragment<ServiceContentViewModel>(), SwipeRefreshLayout.OnRefreshListener, CtxActionReceiver {
-    private lateinit var multiSelectHelper: MultiSelectHelper<MediaLibraryItem>
+class DiscoverServiceFragment : DiscoverFragment<ServiceContentViewModel>() {
     private lateinit var subscriptionListAdapter: DiscoverServiceAdapter
     private lateinit var binding: SubscriptionGridBinding
     private lateinit var settings: SharedPreferences
@@ -53,6 +52,8 @@ class DiscoverServiceFragment : MediaBrowserFragment<ServiceContentViewModel>(),
         const val KEY_SERVICE = "key_service"
         fun newInstance(service: DiscoverService) = DiscoverServiceFragment().apply { arguments = bundleOf(KEY_SERVICE to service) }
     }
+
+    override fun getRootView() = binding.root
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -140,52 +141,7 @@ class DiscoverServiceFragment : MediaBrowserFragment<ServiceContentViewModel>(),
         binding.empty = empty && !working
     }
 
-    private fun DiscoverServiceAction.process() {
-        when (this) {
-            is DiscoverServiceClick -> {
-                onClick(position, item)
-            }
-            is DiscoverServiceLongClick -> {
-                if ((item is VideoGroup && item.presentCount == 0)) UiTools.snackerMissing(requireActivity()) else onLongClick(position)
-            }
-            is DiscoverServiceCtxClick -> {
-                when (item) {
-                    is Subscription -> {
-                        var flags = FlagSet(ContextOption::class.java).apply{
-                            addAll(ContextOption.CTX_DELETE)
-                        }
-                        showContext(requireActivity(), this@DiscoverServiceFragment, position, item, flags)
-                    }
-                }
-            }
-            is DiscoverServiceImageClick -> {
-                if (actionMode != null) {
-                    onClick(position, item)
-                } else {
-                    onLongClick(position)
-                }
-            }
-        }
-    }
 
-    private fun onClick(position: Int, item: MediaLibraryItem) {
-        when (item) {
-            is Subscription -> {
-                if (actionMode != null) {
-                    multiSelectHelper.toggleSelection(position)
-                    invalidateActionMode()
-                } else {
-                    //todo
-                }
-            }
-        }
-    }
-
-    private fun onLongClick(position: Int) {
-        if (actionMode == null && inSearchMode()) UiTools.setKeyboardVisibility(binding.root, false)
-        multiSelectHelper.toggleSelection(position, true)
-        if (actionMode == null) startActionMode() else invalidateActionMode()
-    }
 
     override fun getTitle() = ""
 
@@ -243,8 +199,3 @@ class DiscoverServiceFragment : MediaBrowserFragment<ServiceContentViewModel>(),
     }
 }
 
-sealed class DiscoverServiceAction
-class DiscoverServiceClick(val position: Int, val item: MediaLibraryItem) : DiscoverServiceAction()
-class DiscoverServiceLongClick(val position: Int, val item: MediaLibraryItem) : DiscoverServiceAction()
-class DiscoverServiceCtxClick(val position: Int, val item: MediaLibraryItem) : DiscoverServiceAction()
-class DiscoverServiceImageClick(val position: Int, val item: MediaLibraryItem) : DiscoverServiceAction()
