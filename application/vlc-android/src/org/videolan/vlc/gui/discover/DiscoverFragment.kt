@@ -69,6 +69,7 @@ abstract class DiscoverFragment<T : MedialibraryViewModel>: MediaBrowserFragment
                     }
                     is MediaWrapper -> {
                         var flags = ContextOption.createCtxFeedFlags()
+                        if (item.seen > 0) flags.add(ContextOption.CTX_MARK_AS_UNPLAYED) else  flags.add(ContextOption.CTX_MARK_AS_PLAYED)
                         showContext(requireActivity(), this@DiscoverFragment, position, item, flags)
                     }
                 }
