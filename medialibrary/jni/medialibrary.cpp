@@ -949,6 +949,12 @@ getAllSubscriptionMedia(JNIEnv* env, jobject thiz, jint sortingCriteria, jboolea
 }
 
 jint
+getAllSubscriptionMediaCount(JNIEnv* env, jobject thiz,jboolean includeMissing)
+{
+    return (jint) MediaLibrary_getInstance(env, thiz)->subscriptionMedia(nullptr)->count();
+}
+
+jint
 getPlaylistsCount(JNIEnv* env, medialibrary::PlaylistType type, jobject thiz) {
     return (jint) MediaLibrary_getInstance(env, thiz)->playlists(type, nullptr)->count();
 }
@@ -2623,6 +2629,7 @@ static JNINativeMethod methods[] = {
     {"nativeSetSubscriptionMaxCachedMedia", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;I)Z", (void*)setSubscriptionMaxCachedMedia},
     {"nativeSetMlSubscriptionMaxCacheSize", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;J)Z", (void*)setMlSubscriptionMaxCacheSize},
     {"nativeGetSubscriptionMedia", "(IZZZII)[Lorg/videolan/medialibrary/interfaces/media/MediaWrapper;", (void*)getAllSubscriptionMedia },
+    {"nativeGetSubscriptionMediaCount", "(Z)I", (void*)getAllSubscriptionMediaCount },
     {"nativeSetMaxCacheSize", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;J)Z", (void*)setMaxCacheSize},
     {"nativeGetSubscriptionMaxCachedMedia", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;)I", (void*)getSubscriptionMaxCachedMedia},
     {"nativeGetMlSubscriptionMaxCacheSize", "(Lorg/videolan/medialibrary/interfaces/Medialibrary;)J", (void*)getMlSubscriptionMaxCacheSize},
@@ -2891,7 +2898,7 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
     GET_ID(GetMethodID,
            ml_fields.MediaWrapper.initID,
            ml_fields.MediaWrapper.clazz,
-           "<init>", "(JLjava/lang/String;JFJILjava/lang/String;Ljava/lang/String;JJLjava/lang/String;Ljava/lang/String;JLjava/lang/String;Ljava/lang/String;IILjava/lang/String;IIIIJJZZIZJ)V");
+           "<init>", "(JLjava/lang/String;JFJILjava/lang/String;Ljava/lang/String;JJLjava/lang/String;Ljava/lang/String;JLjava/lang/String;Ljava/lang/String;IILjava/lang/String;IIIIJJZZIZJI)V");
 
     GET_CLASS(ml_fields.HistoryItem.clazz,
               "org/videolan/medialibrary/media/HistoryItem", true);
