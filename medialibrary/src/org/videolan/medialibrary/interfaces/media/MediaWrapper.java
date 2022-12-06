@@ -159,6 +159,7 @@ public abstract class MediaWrapper extends MediaLibraryItem implements Parcelabl
     public abstract boolean removeBookmark(long time);
     public abstract boolean removeAllBookmarks();
     public abstract boolean markAsPlayed();
+    public abstract Subscription[] getSubscriptions();
     public abstract Album getAlbum();
     public abstract Artist getArtist();
     public abstract Artist getAlbumArtist();
@@ -772,6 +773,10 @@ public abstract class MediaWrapper extends MediaLibraryItem implements Parcelabl
 
     public String getTag() {
         return mTag;
+    }
+
+    public int getNbSubscriptions() {
+        return mNbSubscriptions;
     }
 
     @Nullable

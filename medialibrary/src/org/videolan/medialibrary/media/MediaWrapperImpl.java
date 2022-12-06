@@ -33,6 +33,7 @@ import org.videolan.medialibrary.interfaces.media.Album;
 import org.videolan.medialibrary.interfaces.media.Artist;
 import org.videolan.medialibrary.interfaces.media.Bookmark;
 import org.videolan.medialibrary.interfaces.media.MediaWrapper;
+import org.videolan.medialibrary.interfaces.media.Subscription;
 
 import java.util.Locale;
 
@@ -322,6 +323,12 @@ public class MediaWrapperImpl extends MediaWrapper {
     }
 
     @Override
+    public Subscription[] getSubscriptions() {
+        Medialibrary ml = Medialibrary.getInstance();
+        return mId == 0 || !ml.isInitiated() ? null : nativeGetSubscriptions(ml, mId);
+    }
+
+    @Override
     public boolean setFavorite(boolean favorite) {
         if (mId == 0L) return false;
         final Medialibrary ml = Medialibrary.getInstance();
@@ -349,4 +356,5 @@ public class MediaWrapperImpl extends MediaWrapper {
     private native boolean nativeRemoveAllBookmarks(Medialibrary ml, long id);
     private native boolean nativeMarkAsPlayed(Medialibrary ml, long id);
     private native boolean nativeSetFavorite(Medialibrary ml, long id, boolean favorite);
+    private native Subscription[] nativeGetSubscriptions(Medialibrary ml, long id);
 }
