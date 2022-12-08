@@ -49,10 +49,10 @@ public class StubMediaWrapper extends MediaWrapper {
     public StubMediaWrapper(Uri uri, long time, float position, long length, int type,
                         Bitmap picture, String title, long artistId, long albumArtistId,  String artist, String genre, long albumId, String album, String albumArtist,
                         int width, int height, String artworkURL, int audio, int spu, int trackNumber,
-                        int discNumber, long lastModified, long seen, boolean isFavorite, long insertionDate, int nbSubscriptions) {
+                        int discNumber, long lastModified, long seen, boolean isFavorite, long insertionDate, int nbSubscriptions, int releaseYear) {
         super(uri, time, position, length, type, picture, title, artistId, albumArtistId, artist,
                 genre, albumId, album, albumArtist, width, height, artworkURL,
-                audio, spu, trackNumber, discNumber, lastModified, seen, isFavorite, insertionDate, nbSubscriptions);
+                audio, spu, trackNumber, discNumber, lastModified, seen, isFavorite, insertionDate, nbSubscriptions, releaseYear);
     }
 
     public StubMediaWrapper(Uri uri) { super(uri); }
