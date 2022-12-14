@@ -46,6 +46,7 @@ abstract class DiscoverFragment<T : MedialibraryViewModel>: MediaBrowserFragment
 
     override fun getTitle() = ""
     abstract fun getRootView():View
+    abstract fun scrollToTop()
 
     override fun onRefresh() {
        viewModel.refresh()
@@ -81,6 +82,14 @@ abstract class DiscoverFragment<T : MedialibraryViewModel>: MediaBrowserFragment
                     onLongClick(position)
                 }
             }
+            is DiscoverPlayClick -> {
+                (this@DiscoverFragment as DiscoverFeedFragment).play(position, item as MediaWrapper)
+            }
+            is DiscoverAddPlayQueueClick -> {
+                if (item is MediaWrapper) {
+                    (this@DiscoverFragment as DiscoverFeedFragment).appendQueue(position, item)
+                }
+            }
         }
     }
 
@@ -93,7 +102,9 @@ abstract class DiscoverFragment<T : MedialibraryViewModel>: MediaBrowserFragment
                 //todo open the subscription screen
             }
             is MediaWrapper -> {
-                MediaUtils.playTracks(requireActivity(), item, 0, false)
+//                val i = Intent(requireActivity(), SubscriptionInfoActivity::class.java)
+//                i.putExtra(KEY_MEDIA, item)
+//                startActivity(i)
             }
         }
     }
@@ -109,4 +120,6 @@ abstract class DiscoverFragment<T : MedialibraryViewModel>: MediaBrowserFragment
     class DiscoverLongClick(val position: Int, val item: MediaLibraryItem) : DiscoverAction()
     class DiscoverCtxClick(val position: Int, val item: MediaLibraryItem) : DiscoverAction()
     class DiscoverImageClick(val position: Int, val item: MediaLibraryItem) : DiscoverAction()
+    class DiscoverPlayClick(val position: Int, val item: MediaLibraryItem) : DiscoverAction()
+    class DiscoverAddPlayQueueClick(val position: Int, val item: MediaLibraryItem) : DiscoverAction()
 }

@@ -100,6 +100,11 @@ class DiscoverServiceFragment : DiscoverFragment<ServiceContentViewModel>() {
         gridItemDecoration = null
     }
 
+
+    override fun scrollToTop() {
+        binding.videoGrid.smoothScrollToPosition(0)
+    }
+
     private fun updateViewMode() {
         if (view == null || activity == null) {
             Log.w(TAG, "Unable to setup the view")

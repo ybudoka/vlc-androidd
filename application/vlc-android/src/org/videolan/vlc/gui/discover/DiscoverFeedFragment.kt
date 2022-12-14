@@ -123,6 +123,15 @@ class DiscoverFeedFragment : DiscoverFragment<DiscoverFeedViewModel>() {
         gridItemDecoration = null
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        menu.findItem(R.id.ml_menu_sortby).isVisible = false
+        super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun scrollToTop() {
+        binding.videoGrid.smoothScrollToPosition(0)
+    }
+
     private fun updateViewMode() {
         if (view == null || activity == null) {
             Log.w(TAG, "Unable to setup the view")
@@ -189,6 +198,15 @@ class DiscoverFeedFragment : DiscoverFragment<DiscoverFeedViewModel>() {
                 else -> {}
             }
         }
+    }
+
+    fun appendQueue(position: Int, item: MediaWrapper) {
+        viewModel.appendMedia(item, position)
+        feedAdapter.notifyItemChanged(position)
+    }
+    fun play(position: Int, item: MediaWrapper) {
+        viewModel.play(item, position)
+        feedAdapter.notifyItemChanged(position)
     }
 
 }
