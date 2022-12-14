@@ -40,6 +40,7 @@ class DiscoverFeedFragment : DiscoverFragment<DiscoverFeedViewModel>() {
     private lateinit var binding: SubscriptionGridBinding
     private var gridItemDecoration: RecyclerView.ItemDecoration? = null
     private lateinit var settings: SharedPreferences
+    override fun hasFAB() = false
 
     companion object {
         fun newInstance() = DiscoverFeedFragment()
