@@ -70,7 +70,6 @@ class DiscoverFeedViewModel(context: Context) : MedialibraryViewModel(context)  
         watchMedia()
     }
 
-
     class Factory(val context: Context) : ViewModelProvider.NewInstanceFactory() {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             @Suppress("UNCHECKED_CAST")

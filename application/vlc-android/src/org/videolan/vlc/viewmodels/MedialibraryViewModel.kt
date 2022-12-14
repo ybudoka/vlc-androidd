@@ -59,6 +59,7 @@ abstract class MedialibraryViewModel(context: Context) : SortableModel(context),
     override fun canSortByPlayCount() = providers.any { it.canSortByPlayCount() }
     override fun canSortByMediaNumber() = providers.any { it.canSortByMediaNumber() }
 
+    override fun watchSubscriptions() {}
 
     suspend fun changeFavorite(tracks: List<MediaLibraryItem>, favorite: Boolean) = withContext(Dispatchers.IO) {
         tracks.forEach {
