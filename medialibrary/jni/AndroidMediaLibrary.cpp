@@ -258,6 +258,12 @@ AndroidMediaLibrary::searchVideo(const std::string& query, const medialibrary::Q
 }
 
 medialibrary::Query<medialibrary::IMedia>
+AndroidMediaLibrary::searchSubscriptionMedia(const std::string& query, const medialibrary::QueryParameters* params)
+{
+    return p_ml->searchSubscriptionMedia(query, params);
+}
+
+medialibrary::Query<medialibrary::IMedia>
 AndroidMediaLibrary::searchFromAlbum( int64_t albumId, const std::string& query, const medialibrary::QueryParameters* params )
 {
     auto album = p_ml->album(albumId);
