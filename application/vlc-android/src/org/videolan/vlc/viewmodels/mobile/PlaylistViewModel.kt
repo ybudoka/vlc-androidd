@@ -33,6 +33,8 @@ import org.videolan.medialibrary.interfaces.media.MediaWrapper
 import org.videolan.medialibrary.interfaces.media.Playlist
 import org.videolan.medialibrary.media.MediaLibraryItem
 import org.videolan.vlc.gui.HeaderMediaListActivity
+import org.videolan.vlc.gui.discover.SubscriptionInfoActivity
+import org.videolan.vlc.media.MediaUtils
 import org.videolan.vlc.providers.medialibrary.MedialibraryProvider
 import org.videolan.vlc.providers.medialibrary.TracksProvider
 import org.videolan.vlc.viewmodels.MedialibraryViewModel
@@ -99,8 +101,19 @@ class PlaylistViewModel(context: Context, private val initialPlaylist: MediaLibr
         playlist?.let { it.setFavorite(!it.isFavorite) }
     }
 
+    fun appendMedia(item: MediaWrapper, position: Int) {
+        MediaUtils.appendMedia(context, item)
+        tracksProvider.appendMedia(position)
+    }
+
+    fun play(item: MediaWrapper, position: Int) {
+        MediaUtils.playTracks(context, item, 0, false)
+        tracksProvider.appendMedia(position)
+    }
+
     override fun watchSubscriptions() {
     }
 }
 
 internal fun HeaderMediaListActivity.getViewModel(playlist: MediaLibraryItem) = ViewModelProvider(this, PlaylistViewModel.Factory(this, playlist))[PlaylistViewModel::class.java]
+internal fun SubscriptionInfoActivity.getViewModel(playlist: MediaLibraryItem) = ViewModelProvider(this, PlaylistViewModel.Factory(this, playlist)).get(PlaylistViewModel::class.java)
