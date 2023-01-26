@@ -48,6 +48,7 @@ class DiscoverServiceFragment : DiscoverFragment<ServiceContentViewModel>(), Fil
 
     override fun hasFAB() = false
     override val hasTabs = true
+    override val isMainNavigationPoint = false
 
     companion object {
         const val KEY_SERVICE = "key_service"
