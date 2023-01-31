@@ -1270,6 +1270,8 @@
     <string name="filter">Filter</string>
 
 
+    <string name="follow_parent">Follow parent</string>
+    <string name="none">None</string>
 
     <!--    accessibility-->
     <string name="talkback_media_content_description">%1$s - title: %2$s - duration: %3$s</string>
