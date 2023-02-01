@@ -66,7 +66,7 @@ abstract class DiscoverFragment<T : MedialibraryViewModel>: MediaBrowserFragment
                 when (item) {
                     is Subscription -> {
                         var flags = FlagSet(ContextOption::class.java).apply {
-                            addAll(ContextOption.CTX_DELETE)
+                            addAll(ContextOption.CTX_UNSUBSCRIBE)
                         }
                         showContext(requireActivity(), this@DiscoverFragment, position, item, flags)
                     }
