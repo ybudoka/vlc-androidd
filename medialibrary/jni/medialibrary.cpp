@@ -2498,12 +2498,6 @@ getSubscriptionNbUnplayedMedia(JNIEnv *env, jobject thiz, jobject medialibrary, 
     return subscriptionPtr->nbUnplayedMedia();
 }
 
-jboolean
-removeSubscription(JNIEnv* env, jobject thiz, jlong id)
-{
-   return MediaLibrary_getInstance(env, thiz)->removeSubscription((int64_t)id);
-}
-
 jobjectArray
 getChildSubscriptions(JNIEnv* env, jobject thiz, jobject ml, jlong id, jint sortingCriteria, jboolean desc, jboolean includeMissing, jboolean onlyFavorites)
 {
