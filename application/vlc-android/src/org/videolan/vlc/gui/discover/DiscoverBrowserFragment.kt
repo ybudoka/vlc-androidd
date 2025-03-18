@@ -25,6 +25,7 @@
 package org.videolan.vlc.gui.discover
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.appcompat.view.ActionMode
 import androidx.fragment.app.Fragment
@@ -70,8 +71,10 @@ class DiscoverBrowserFragment : BaseFragment(), TabLayout.OnTabSelectedListener,
     override fun onStart() {
         setupTabLayout()
         super.onStart()
+        Log.d(TAG, "onStart: skbench: fabPlay: $fabPlay")
         fabPlay?.setImageResource(R.drawable.ic_fab_add)
         fabPlay?.contentDescription = getString(R.string.add)
+        fabPlay?.visibility = View.VISIBLE
     }
 
     override fun onStop() {
@@ -165,7 +168,9 @@ class DiscoverBrowserFragment : BaseFragment(), TabLayout.OnTabSelectedListener,
         if (isAdded && isStarted()) (viewPager.findCurrentFragment(parentFragmentManager) as? DiscoverFragment<*>)?.scrollToTop()
     }
 
+    private val TAG = this::class.java.name
     override fun onFabPlayClick(view: View) {
+        Log.d(TAG, "onFabPlayClick: skbench: ")
         PodcastAddDialog.newInstance().show(requireActivity().supportFragmentManager, "PodcastAddDialog")
     }
 }

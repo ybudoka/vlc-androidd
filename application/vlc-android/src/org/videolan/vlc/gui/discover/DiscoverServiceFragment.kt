@@ -48,7 +48,7 @@ class DiscoverServiceFragment : DiscoverFragment<ServiceContentViewModel>(), Fil
     private val displayModeKey: String
         get() = "display_mode_service_${discoverService.mType}"
 
-    override fun hasFAB() = false
+    override fun hasFAB() = true
     override val hasTabs = true
     override val isMainNavigationPoint = false
 
@@ -254,6 +254,12 @@ class DiscoverServiceFragment : DiscoverFragment<ServiceContentViewModel>(), Fil
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private val TAG = this::class.java.name
+    override fun onFabPlayClick(view: View) {
+        Log.d(TAG, "onFabPlayClick: skbench: ")
+        PodcastAddDialog.newInstance().show(requireActivity().supportFragmentManager, "PodcastAddDialog")
     }
 }
 
