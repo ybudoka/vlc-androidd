@@ -228,14 +228,14 @@ class StartActivity : FragmentActivity() {
                 val id = split.last()
                 lifecycleScope.launch {
                     getFromMl {
-                        val album = when(type) {
+                        val mlItem = when(type) {
                          "album" ->   getAlbum(id.toLong())
                          "artist" ->   getArtist(id.toLong())
                          "genre" ->   getGenre(id.toLong())
                          "playlist" ->   getPlaylist(id.toLong(), false, false)
                          else ->   getMedia(id.toLong())
                         }
-                        MediaUtils.playTracks(this@StartActivity, album, 0)
+                        MediaUtils.playTracks(this@StartActivity, mlItem, 0)
                     }
                 }
             } else if(action != null && action== "vlc.remoteaccess.share") {
