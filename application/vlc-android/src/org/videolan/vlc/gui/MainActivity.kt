@@ -80,6 +80,7 @@ import org.videolan.vlc.gui.helpers.UiTools.isTablet
 import org.videolan.vlc.gui.preferences.PreferencesActivity
 import org.videolan.vlc.gui.preferences.search.PreferenceParser
 import org.videolan.vlc.gui.video.VideoGridFragment
+import org.videolan.vlc.gui.video.VideoPlayerActivity
 import org.videolan.vlc.interfaces.Filterable
 import org.videolan.vlc.interfaces.IRefreshable
 import org.videolan.vlc.media.MediaUtils
@@ -129,6 +130,8 @@ class MainActivity : ContentActivity(),
                if (!Settings.firstRun)  WhatsNewManager.launchIfNeeded(this) else WhatsNewManager.markAsShown(settings)
             }
         }
+
+        checkStartPlaylistShortcut(intent)
 
         lifecycleScope.launch {
             if (!BuildConfig.DEBUG) return@launch
@@ -205,6 +208,15 @@ class MainActivity : ContentActivity(),
         backPressedCallback.isEnabled = AndroidUtil.isNougatOrLater && isInMultiWindowMode
     }
 
+    // Check if the app was opened from a playlist shortcut with a video as the first item.
+    private fun checkStartPlaylistShortcut(intent: Intent?) {
+        if (intent != null && intent.action != null && intent.action!!.startsWith("vlc.mediashortcut:")) {
+            intent.action = null
+            val startIntent = Intent(this, VideoPlayerActivity::class.java)
+            startIntent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+            startActivity(startIntent)
+        }
+    }
 
     override fun onResume() {
         super.onResume()
@@ -217,6 +229,13 @@ class MainActivity : ContentActivity(),
         }
         updateIncognitoModeIcon()
         configurationChanged(getScreenWidth())
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        // If the app is not in the destroyed state, the intent will not go through
+        // MainActivity onCreate, so onNewIntent is also needed
+        checkStartPlaylistShortcut(intent)
     }
 
     override fun onRequestPermissionsResult(
