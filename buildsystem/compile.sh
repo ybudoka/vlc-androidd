@@ -413,8 +413,10 @@ if [ "$TEST" = 1 ]; then
     BUILDTYPE="Debug"
 elif [ "$SIGNED_RELEASE" = 1 ]; then
     BUILDTYPE="signedRelease"
+    gradle_prop="$gradle_prop -PaarMediaLib"
 elif [ "$RELEASE" = 1 ]; then
     BUILDTYPE="Release"
+    gradle_prop="$gradle_prop -PaarMediaLib"
 fi
 if [ "$TEST" = 1 ] || [ "$RUN" = 1 ]; then
     ACTION="install"
