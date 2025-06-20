@@ -48,13 +48,70 @@ ext {
     versionName = vlcMajorVersion == 3 ? '3.7.1' : '4.0.0-preview - ' + versionCode
     remoteAccessVersion = '0.17.0'
     libvlcVersion = vlcMajorVersion == 3 ? '3.7.1' :'4.0.0-eap25'
-    useLocalMediaLibrary = project.hasProperty('aarMediaLib')
+
+    def has_64_bits = false
+    if (project.hasProperty('aarMediaLib')) {
+        useLocalMediaLibrary = false
+        abisSelected = []
+    } else {
+        def missing_libs = false
+        abisSelected = project.findProperty('vlcLibABI') ? project.getProperty('vlcLibABI').split(',').collect{it as String} : (project.hasProperty('vlcLibVariant') ? project.getProperty('vlcLibVariant') : null)
+        if (abisSelected == null) {
+            // automagically select the ABI's where the prebuilt libraries are available
+            def abis = []
+            ['arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'].each { abi_test ->
+                def is_32_bits = abi_test == 'x86' || abi_test == 'armeabi-v7a'
+                medialibAndroidAPI = (vlcMajorVersion == 3 && is_32_bits) ? 17 : 21
+                if (file('libvlcjni/libvlc/jni/libs/' + abi_test + '/libvlc.so').exists() &&
+                    file('medialibrary/prefix/android-' + medialibAndroidAPI + '-' + abi_test + '/lib/libmedialibrary.a').exists())
+                    abis.addAll(abi_test)
+                if (!is_32_bits)
+                    has_64_bits = true
+            }
+            if (abis == []) {
+                logger.error('No libvlc.so+libmedialibrary.a found for any ABI')
+                missing_libs = true
+            }
+            else {
+                abisSelected = abis
+                logger.warn('found libvlc.so+libmedialibrary.a for ABIs ' + abisSelected)
+            }
+        } else {
+            abisSelected.each { abi_test ->
+                def is_32_bits = abi_test == 'x86' || abi_test == 'armeabi-v7a'
+                medialibAndroidAPI = (vlcMajorVersion == 3 && is_32_bits) ? 17 : 21
+                missing_lib = false
+                if (!file('libvlcjni/libvlc/jni/libs/' + abi_test + '/libvlc.so').exists()) {
+                    logger.error('missing ' + file('libvlcjni/libvlc/jni/libs/' + abi_test + '/libvlc.so').getAbsolutePath())
+                    missing_lib = true
+                }
+                if (!file('medialibrary/prefix/android-' + medialibAndroidAPI + '-' + abi_test + '/lib/libmedialibrary.a').exists()){
+                    logger.error('missing ' + file('medialibrary/prefix/android-' + medialibAndroidAPI + '-' + abi_test + '/lib/libmedialibrary.a').getAbsolutePath())
+                    missing_lib = true
+                }
+                missing_libs |= missing_lib
+                if (!is_32_bits && !missing_lib)
+                    has_64_bits = true
+            }
+        }
+        if (abisSelected != null && !missing_libs)
+            useLocalMediaLibrary = true
+        else {
+            logger.error('missing local files using medialibrary AAR')
+            useLocalMediaLibrary = false
+        }
+    }
+    medialibraryAndroidAPI = (vlcMajorVersion == 3 && !has_64_bits) ? 17 : 21
     medialibraryVersion = '0.13.19' + (vlcMajorVersion == 3 ? '' : '-vlc4')
     Properties properties = new Properties()
     properties.load(project.rootProject.file('local.properties').newDataInputStream())
-    // default ndkVersion in  android_plugin_version in 8.9.1: 27.0.12077973
-    // VLC 3 needs to stick to NDK21 which is the last one supporting Android API 17
-    toolchainNdkVersion = properties.getProperty('android.ndkFullVersion') ?: (vlcMajorVersion == 3 ? '21.4.7075529' : '28.2.13676358')
+    ndkVersion32VLC3 = '21.4.7075529' // vlc-debian-android-3.0 docker image
+    ndkVersionVLC4 = '28.2.13676358'  // vlc-debian-android docker image
+    // default ndkVersion in android_plugin_version in 8.13.0: 27.0.12077973
+    // VLC 3 32-bits needs to stick to NDK21 which is the last one supporting Android API 17
+    // VLC 3 64-bits needs a NDK27 or higher to use a libc++_shared.so that is 16k aligned
+    // toolchainNdkVersion is ignored if android.ndkPath is set in local.properties
+    toolchainNdkVersion = properties.getProperty('android.ndkFullVersion') ?: ((vlcMajorVersion == 3 && !has_64_bits) ? ndkVersion32VLC3 : ndkVersionVLC4)
     tooclchainNdkPath = properties.getProperty('android.ndkPath')
     targetSdkVersion = 36
     compileSdkVersion = 36 // Dockers: 3.0=36 / 4.0=36

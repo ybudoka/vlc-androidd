@@ -402,7 +402,6 @@ if [ "$NO_ML" != 1 ]; then
         medialig_args="$medialig_args --reset"
     fi
     buildsystem/compile-medialibrary.sh ${medialig_args}
-    cp -a medialibrary/jni/libs/${ANDROID_ABI}/*.so "${OUT_DBG_DIR}"
 fi
 
 ##################
@@ -418,6 +417,11 @@ elif [ "$RELEASE" = 1 ]; then
     BUILDTYPE="Release"
     gradle_prop="$gradle_prop -PaarMediaLib"
 fi
+if [ "$SIGNED_RELEASE" = 1 ]; then
+    BUILDTYPE_JNI="Release"
+else
+    BUILDTYPE_JNI="$BUILDTYPE"
+fi
 if [ "$TEST" = 1 ] || [ "$RUN" = 1 ]; then
     ACTION="install"
 else
@@ -425,6 +429,9 @@ else
 fi
 GRADLE_TASK="${ACTION}${BUILDTYPE}"
 
+if [ "$AVLC_STATIC_CXX" = 1 ]; then
+    gradle_prop="$gradle_prop -PstaticSTL"
+fi
 if [ -n "$M2_REPO" ]; then
     gradle_prop="$gradle_prop -Dmaven.repo.local=$M2_REPO"
 fi
@@ -433,7 +440,8 @@ if [ "$BUILD_LIBVLC" = 1 ];then
     GRADLE_ABI=$GRADLE_ABI ./gradlew ${gradle_prop} --project-dir ${VLC_LIBJNI_PATH}/libvlc $GRADLE_TASK
     RUN=0
 elif [ "$BUILD_MEDIALIB" = 1 ]; then
-    gradle_prop="$gradle_prop -PvlcLibVariant=$GRADLE_ABI"
+    # vlcLibVariant is the name of the arch in the aar / vlcLibABI is the proper ABI name in gradle
+    gradle_prop="$gradle_prop -PvlcLibVariant=$GRADLE_ABI -PvlcLibABI=$ANDROID_ABI"
     ./gradlew ${gradle_prop} --project-dir medialibrary $GRADLE_TASK
     RUN=0
 else
@@ -447,6 +455,12 @@ else
         echo -e "\n===================================\nRun following for UI tests:"
         echo "adb shell am instrument -w -m -e clearPackageData true   -e package org.videolan.vlc -e debug false org.videolan.vlc.debug.test/org.videolan.vlc.MultidexTestRunner 1> result_UI_test.txt"
     fi
+fi
+
+if [ "$NO_ML" != 1 ]; then
+    # lowercase version
+    buildtype_jni=$(echo "${BUILDTYPE_JNI}" | sed -e 's/\(.*\)/\L\1/' -)
+    cp -a medialibrary/build/intermediates/merged_native_libs/${buildtype_jni}/merge${BUILDTYPE_JNI}NativeLibs/out/lib/${ANDROID_ABI}/*.so "${OUT_DBG_DIR}"
 fi
 
 if [ ! -d "./application/remote-access-client/remoteaccess/dist" ] ; then

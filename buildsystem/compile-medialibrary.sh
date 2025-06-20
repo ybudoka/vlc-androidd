@@ -14,7 +14,6 @@ while [ $# -gt 0 ]; do
     echo "Use -a to set the ARCH"
     echo "Use --release to build in release mode"
     echo "Use --reset to reset code from git"
-    echo "Use --static-cpp to use the static C++ runtime"
     exit 1
     ;;
   a | -a)
@@ -27,18 +26,9 @@ while [ $# -gt 0 ]; do
   reset | --reset)
     RESET=1 # used when calling compile-libvlc.sh
     ;;
-  --static-cpp)
-    AVLC_STATIC_CXX=1 # used when calling compile-libvlc.sh
-    ;;
   esac
   shift
 done
-
-if [ "$AVLC_STATIC_CXX" = 1 ]; then
-    NDK_APP_STL="c++_static"
-else
-    NDK_APP_STL="c++_shared"
-fi
 
 SRC_DIR=$PWD
 # gets TARGET_TUPLE / ANDROID_API / CLANG_PREFIX / CROSS_CLANG / VLC_CFLAGS / VLC_CXXFLAGS / MAKEFLAGS / LIBVLCJNI_SRC_DIR
@@ -224,13 +214,3 @@ meson compile -C "build-android-$ANDROID_ABI"
 meson install -C "build-android-$ANDROID_ABI"
 
 avlc_checkfail "medialibrary: build failed"
-
-cd ${SRC_DIR}
-
-cmake -S medialibrary/jni -B medialibrary/medialibrary/mla/android-${ANDROID_API}-${ANDROID_ABI} \
-    -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake \
-    -DANDROID_ABI=${ANDROID_ABI} -DANDROID_PLATFORM=android-${ANDROID_API} -DCMAKE_BUILD_TYPE=${CMAKE_DEBUG} -DANDROID_STL=${NDK_APP_STL} \
-    -DLIBVLCJNI_SRC_DIR:PATH=${LIBVLCJNI_SRC_DIR}
-cmake --build medialibrary/medialibrary/mla/android-${ANDROID_API}-${ANDROID_ABI}
-
-avlc_checkfail "nkd-build medialibrary failed"
