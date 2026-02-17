@@ -287,6 +287,7 @@ if [ ! -e "./gradlew" ] || [ ! -x "./gradlew" ]; then
     GRADLE_DOWNLOADED_ZIP=gradle-${GRADLE_VERSION}-bin.zip
 
     export PATH="$(pwd -P)/gradle-${GRADLE_VERSION}/bin:$PATH"
+
     GRADLE_PATH_VERSION=$(cd buildsystem/gradle_version; gradle -q 2>/dev/null | grep gradle_version= | cut -b 16-)
     if [ "$GRADLE_PATH_VERSION" != "$GRADLE_VERSION" ]; then
         diagnostic "gradle could not be found in PATH, downloading"

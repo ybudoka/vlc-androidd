@@ -169,6 +169,9 @@ else
     exit 1
 fi
 
+PKG_CONFIG_LIBDIR="$LIBVLCJNI_SRC_DIR/vlc/build-android-${TARGET_TUPLE}/install/lib/pkgconfig:\
+${MEDIALIBRARY_PREFIX}/lib/pkgconfig:$LIBVLCJNI_SRC_DIR/vlc/contrib/$TARGET_TUPLE/lib/pkgconfig/"
+
 echo "generate meson ${ANDROID_ABI}-${ANDROID_API} crossfile"
 exec 3>crossfile-${ANDROID_ABI}-android-${ANDROID_API}.meson || return $?
 
@@ -192,11 +195,12 @@ else
 fi
 printf 'cpu = '"'"'%s'"'"'\n' "${MESON_CPU}" >&3
 
-if [ ! -d "build-android-$ANDROID_ABI/" ] || [ ! -f "build-android-$ANDROID_ABI/build.ninja" ]; then
-    export PATH="$LIBVLCJNI_SRC_DIR/vlc/extras/tools/build/bin:$PATH"
+printf '\n[properties]\n' >&3
+printf 'pkg_config_libdir = '"'"'%s'"'"'\n' "${PKG_CONFIG_LIBDIR}" >&3
 
-    PKG_CONFIG_LIBDIR="$LIBVLCJNI_SRC_DIR/vlc/build-android-${TARGET_TUPLE}/install/lib/pkgconfig" \
-    PKG_CONFIG_PATH="${MEDIALIBRARY_PREFIX}/lib/pkgconfig:$LIBVLCJNI_SRC_DIR/vlc/contrib/$TARGET_TUPLE/lib/pkgconfig/" \
+export PATH="$LIBVLCJNI_SRC_DIR/vlc/extras/tools/build/bin:$PATH"
+
+if [ ! -d "build-android-$ANDROID_ABI/" ] || [ ! -f "build-android-$ANDROID_ABI/build.ninja" ]; then
     meson setup \
         -Ddebug=true \
         -Doptimization=${MEDIALIBRARY_OPTIMIZATION} \
