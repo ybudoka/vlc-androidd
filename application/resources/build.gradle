@@ -69,13 +69,14 @@ dependencies {
 
     api project(':application:tools')
     devApi project(':libvlcjni:libvlc')
-    devApi project(':medialibrary')
     debugApi "org.videolan.android:libvlc-all:$rootProject.ext.libvlcVersion"
-    debugApi "org.videolan.android:medialibrary-all:$rootProject.ext.medialibraryVersion"
+    if (rootProject.ext.useLocalMediaLibrary) {
+        api project(':medialibrary')
+    } else {
+        api "org.videolan.android:medialibrary-all:$rootProject.ext.medialibraryVersion"
+    }
     releaseApi "org.videolan.android:libvlc-all:$rootProject.ext.libvlcVersion"
-    releaseApi "org.videolan.android:medialibrary-all:$rootProject.ext.medialibraryVersion"
     vlcBundleApi "org.videolan.android:libvlc-all:$rootProject.ext.libvlcVersion"
-    vlcBundleApi "org.videolan.android:medialibrary-all:$rootProject.ext.medialibraryVersion"
 
     api "com.google.android.material:material:$rootProject.ext.androidxMaterialVersion"
 

@@ -155,13 +155,14 @@ task generateSources(type: Jar) {
 
 dependencies {
     devApi project(':libvlcjni:libvlc')
-    devApi project(':medialibrary')
     debugApi "org.videolan.android:libvlc-all:$rootProject.ext.libvlcVersion"
-    debugApi "org.videolan.android:medialibrary-all:$rootProject.ext.medialibraryVersion"
+    if (rootProject.ext.useLocalMediaLibrary) {
+        api project(':medialibrary')
+    } else {
+        api "org.videolan.android:medialibrary-all:$rootProject.ext.medialibraryVersion"
+    }
     releaseApi "org.videolan.android:libvlc-all:$rootProject.ext.libvlcVersion"
-    releaseApi "org.videolan.android:medialibrary-all:$rootProject.ext.medialibraryVersion"
     signedReleaseApi "org.videolan.android:libvlc-all:$rootProject.ext.libvlcVersion"
-    signedReleaseApi "org.videolan.android:medialibrary-all:$rootProject.ext.medialibraryVersion"
     api project(':application:tools')
     api project(':application:resources')
     api project(':application:mediadb')

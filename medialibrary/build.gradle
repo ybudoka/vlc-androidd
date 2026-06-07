@@ -26,6 +26,7 @@ apply plugin: "com.vanniktech.maven.publish"
 def abi = project.hasProperty('vlcLibVariant') ? project.getProperty('vlcLibVariant') : 'all'
 ext {
     library_version = "$rootProject.ext.medialibraryVersion"
+    medialibraryAndroidAPI = "$rootProject.ext.medialibraryAndroidAPI"
 }
 android {
     namespace = 'org.videolan.medialibrary'
@@ -38,6 +39,20 @@ android {
         ndkVersion = rootProject.ext.toolchainNdkVersion
         if (rootProject.ext.tooclchainNdkPath != null)
             ndkPath = rootProject.ext.tooclchainNdkPath
+        if (rootProject.ext.vlcMajorVersion == 3)
+            // 64-bits targets need a newer NDK (21) but it complains about targeting API 17
+            android.experimentalProperties["android.ndk.suppressMinSdkVersionError"] = 21
+
+        externalNativeBuild {
+            ndk {
+                if (rootProject.ext.abisSelected != null)
+                    abiFilters.addAll(rootProject.ext.abisSelected)
+            }
+            cmake {
+                def cppstl = project.hasProperty('staticSTL') ? 'c++_static' : 'c++_shared'
+                arguments "-DCMAKE_ANDROID_STL_TYPE=${cppstl}", "-DANDROID_PLATFORM=android-${medialibraryAndroidAPI}"
+            }
+        }
     }
 
     sourceSets {
@@ -77,6 +92,12 @@ android {
     buildFeatures {
         renderScript = true
         aidl = true
+    }
+    externalNativeBuild {
+        cmake {
+            if (rootProject.ext.useLocalMediaLibrary)
+                path file('jni/CMakeLists.txt')
+        }
     }
 
     // Make per-variant version code
