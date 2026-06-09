@@ -50,6 +50,7 @@ import org.videolan.tools.KEY_BROWSE_NETWORK
 import org.videolan.tools.KEY_NAVIGATOR_SCREEN_UNSTABLE
 import org.videolan.tools.NetworkMonitor
 import org.videolan.tools.Settings
+import org.videolan.tools.canAccessLocalNetwork
 import org.videolan.tools.isStarted
 import org.videolan.tools.putSingle
 import org.videolan.tools.setGone
@@ -325,7 +326,7 @@ class MainBrowserFragment : BaseFragment(), View.OnClickListener, CtxActionRecei
             emptyLoading.emptyText = getString(R.string.network_disabled)
             return
         }
-        if (Build.VERSION.SDK_INT >= 37 && !Permissions.canAccessLocalNetwork(requireContext())) {
+        if (!requireContext().canAccessLocalNetwork()) {
             networkEntry.loading.state = EmptyLoadingState.MISSING_LOCAL_NETWORK_PERMISSION
             return
         }

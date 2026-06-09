@@ -237,10 +237,6 @@ object Permissions {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
     }
 
-    fun canAccessLocalNetwork(context: Context): Boolean {
-        return Build.VERSION.SDK_INT < 37 || ContextCompat.checkSelfPermission(context, "android.permission.ACCESS_LOCAL_NETWORK") == PackageManager.PERMISSION_GRANTED
-    }
-
     @JvmOverloads
     fun canWriteStorage(context: Context = AppContextProvider.appContext): Boolean {
         return if (AndroidUtil.isROrLater) {
