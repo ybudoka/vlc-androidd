@@ -25,6 +25,7 @@
 package org.videolan.vlc.gui.browser
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -32,6 +33,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.view.ActionMode
+import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
@@ -53,6 +55,7 @@ import org.videolan.tools.putSingle
 import org.videolan.tools.setGone
 import org.videolan.tools.setVisible
 import org.videolan.vlc.R
+import org.videolan.vlc.RendererDelegate
 import org.videolan.vlc.gui.BaseFragment
 import org.videolan.vlc.gui.SecondaryActivity
 import org.videolan.vlc.gui.dialogs.CONFIRM_PERMISSION_CHANGED
@@ -69,6 +72,7 @@ import org.videolan.vlc.gui.helpers.hf.requestOtgRoot
 import org.videolan.vlc.gui.view.EmptyLoadingState
 import org.videolan.vlc.gui.view.EmptyLoadingStateView
 import org.videolan.vlc.gui.view.TitleListView
+import org.videolan.vlc.interfaces.IRefreshable
 import org.videolan.vlc.media.MediaUtils
 import org.videolan.vlc.repository.BrowserFavRepository
 import org.videolan.vlc.util.ContextOption
@@ -87,7 +91,7 @@ import org.videolan.vlc.viewmodels.browser.TYPE_FILE
 import org.videolan.vlc.viewmodels.browser.TYPE_NETWORK
 import org.videolan.vlc.viewmodels.browser.getBrowserModel
 
-class MainBrowserFragment : BaseFragment(), View.OnClickListener, CtxActionReceiver {
+class MainBrowserFragment : BaseFragment(), View.OnClickListener, CtxActionReceiver, IRefreshable {
 
     private lateinit var networkMonitor: NetworkMonitor
     private var currentCtx: MainBrowserContainer? = null
@@ -280,7 +284,7 @@ class MainBrowserFragment : BaseFragment(), View.OnClickListener, CtxActionRecei
             list?.let {
                 networkAdapter.update(it)
                 updateNetworkEmptyView(networkEntry.loading)
-                if (networkViewModel.loading.value == false) networkEntry.loading.state = if (list.isEmpty()) EmptyLoadingState.EMPTY else EmptyLoadingState.NONE
+                //if (networkViewModel.loading.value == false) networkEntry.loading.state = if (list.isEmpty()) EmptyLoadingState.EMPTY else EmptyLoadingState.NONE
             }
         }
         networkViewModel.loading.observe(viewLifecycleOwner) {
@@ -319,6 +323,10 @@ class MainBrowserFragment : BaseFragment(), View.OnClickListener, CtxActionRecei
         if (!Settings.getInstance(requireActivity()).getBoolean(KEY_BROWSE_NETWORK, true)) {
             emptyLoading.state = EmptyLoadingState.EMPTY
             emptyLoading.emptyText = getString(R.string.network_disabled)
+            return
+        }
+        if (Build.VERSION.SDK_INT >= 37 && !Permissions.canAccessLocalNetwork(requireContext())) {
+            networkEntry.loading.state = EmptyLoadingState.MISSING_LOCAL_NETWORK_PERMISSION
             return
         }
         if (networkMonitor.connected) {
@@ -478,5 +486,9 @@ class MainBrowserFragment : BaseFragment(), View.OnClickListener, CtxActionRecei
             CTX_FAV_EDIT -> showAddServerDialog(mw)
             else -> {}
         }
+    }
+
+    override fun refresh() {
+        networkViewModel.refresh()
     }
 }
