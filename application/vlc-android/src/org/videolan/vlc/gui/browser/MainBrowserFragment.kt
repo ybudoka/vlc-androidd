@@ -491,5 +491,7 @@ class MainBrowserFragment : BaseFragment(), View.OnClickListener, CtxActionRecei
 
     override fun refresh() {
         networkViewModel.refresh()
+        RendererDelegate.restart()
+        NetworkMonitor.getInstance(requireActivity()).register()
     }
 }
