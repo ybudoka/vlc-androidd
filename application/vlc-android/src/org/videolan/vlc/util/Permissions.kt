@@ -63,6 +63,7 @@ object Permissions {
     const val PERMISSION_STORAGE_TAG = 255
     const val PERMISSION_WRITE_STORAGE_TAG = 253
     const val MANAGE_EXTERNAL_STORAGE = 256
+    const val PERMISSION_LOCAL_NETWORK = 257
 
     const val FINE_STORAGE_PERMISSION_REQUEST_CODE = 100001
 
@@ -234,6 +235,10 @@ object Permissions {
 
     fun canCheckBluetoothDevices(context: Context): Boolean {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun canAccessLocalNetwork(context: Context): Boolean {
+        return Build.VERSION.SDK_INT < 37 || ContextCompat.checkSelfPermission(context, "android.permission.ACCESS_LOCAL_NETWORK") == PackageManager.PERMISSION_GRANTED
     }
 
     @JvmOverloads
