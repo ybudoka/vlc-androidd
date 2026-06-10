@@ -238,7 +238,8 @@ class StartActivity : FragmentActivity() {
                          "playlist" ->   getPlaylist(id.toLong(), false, false)
                          else ->   getMedia(id.toLong())
                         }
-                        if (mlItem is MediaWrapper || (mlItem is Playlist && mlItem.tracks.isNotEmpty() && mlItem.tracks[0].type == TYPE_VIDEO)) {
+                        if (mlItem is MediaWrapper && mlItem.type == TYPE_VIDEO ||
+                            (mlItem is Playlist && mlItem.tracks.isNotEmpty() && mlItem.tracks[0].type == TYPE_VIDEO)) {
                             val mainIntent = Intent(Intent.ACTION_VIEW)
                                 .setClassName(applicationContext, if (tv) TV_MAIN_ACTIVITY else MOBILE_MAIN_ACTIVITY)
                                 .setAction(action)
