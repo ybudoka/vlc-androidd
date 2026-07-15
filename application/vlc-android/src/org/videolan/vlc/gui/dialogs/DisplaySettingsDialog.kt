@@ -430,7 +430,7 @@ class DisplaySettingsDialog : VLCBottomSheetDialogFragment() {
                     Medialibrary.SORT_LASTMODIFICATIONDATE -> setupSortViews(binding, isCurrentSort, R.string.sortby_date_last_modified, R.string.sort_date_asc, R.string.sort_date_desc, R.drawable.ic_medialibrary_scan)
                     Medialibrary.SORT_ALBUM -> setupSortViews(binding, isCurrentSort, R.string.sortby_album_name, R.string.sort_alpha_asc, R.string.sort_alpha_desc, R.drawable.ic_sort_album)
                     Medialibrary.SORT_RELEASEDATE -> setupSortViews(binding, isCurrentSort, R.string.sortby_date_release, R.string.sort_date_asc, R.string.sort_date_desc, R.drawable.ic_sort_date)
-                    Medialibrary.NbMedia -> setupSortViews(binding, isCurrentSort, R.string.sortby_number, R.string.sortby_number_asc, R.string.sortby_number_desc, R.drawable.ic_sort_number)
+                    Medialibrary.NbMedia -> setupSortViews(binding, isCurrentSort, R.string.sortby_media_number, R.string.sortby_number_asc, R.string.sortby_number_desc, R.drawable.ic_sort_number)
                     else -> throw IllegalStateException("Unsupported sort: $sort")
                 }
 

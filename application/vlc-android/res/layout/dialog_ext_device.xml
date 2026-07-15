@@ -50,7 +50,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="@{handler::scan}"
-                android:text="@string/medialibrary_scan"
+                android:text="@string/scan_media_library"
                 app:layout_constraintEnd_toStartOf="@+id/ext_device_open"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/ext_device_cancel"
