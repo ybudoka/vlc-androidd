@@ -270,13 +270,13 @@
 
 
     <string name="playback_history_title">Playback history</string>
-    <string name="playback_history_summary">Save all media played in History section</string>
+    <string name="playback_history_summary">Save all played media to playback history</string>
     <string name="video_resume_playback_title">Video play queue history</string>
-    <string name="video_resume_playback_summary">Allow saving the video play queue to resume later</string>
+    <string name="video_resume_playback_summary">Save the video play queue so playback can resume later</string>
     <string name="audio_resume_playback_title">Audio play queue history</string>
-    <string name="audio_resume_playback_warning">Disabling the audio play queue history may lead to some behavior issues.\nAfter disabling it you may not be able to resume the playback from:\n\n\t- a  bluetooth device\n\t- the widget\n\t- the media notification</string>
-    <string name="playback_history_warning">Disabling the playback history will hide the history, the media progress and the seen markers. The app will continue to save your activity and it will be restored if the history is turned back on.\nIf you want to completely stop saving your activity, use the incognito mode instead.\nYou can also clear your history in the history screen or in the advanced settings.</string>
-    <string name="audio_resume_playback_summary">Allow saving the audio play queue to resume later</string>
+    <string name="audio_resume_playback_warning">Disabling audio play queue history may cause some features to stop working.\nAfter disabling it, you may not be able to resume playback from:\n\n\t- a Bluetooth device\n\t- the widget\n\t- the media notification</string>
+    <string name="playback_history_warning">Disabling playback history will hide your history, media playback progress, and watched markers. The app will continue saving your activity and will restore it when playback history is turned back on.\nTo stop saving your activity completely, use incognito mode instead.\nYou can also clear your history from the History screen or Advanced settings.</string>
+    <string name="audio_resume_playback_summary">Save the audio play queue so playback can resume later</string>
 
     <string name="play_button">Play Button</string>
 
