@@ -556,6 +556,10 @@ fun ViewPager2.findCurrentFragment(fragmentManager: FragmentManager): Fragment? 
     return fragmentManager.findFragmentByTag("f$currentItem")
 }
 
+fun ViewPager2.findFragmentAt(fragmentManager: FragmentManager, position: Int): Fragment? {
+    return fragmentManager.findFragmentByTag("f$position")
+}
+
 /**
  * Merges the current sorted mutable list with another sorted list based on a selected property.
  *
