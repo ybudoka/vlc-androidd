@@ -669,7 +669,7 @@
     <string name="browse_network">Browse network</string>
     <string name="search_hint">Search media</string>
     <string name="search_in_list_hint">Search in current list</string>
-    <string name="search_global">Search in all media library</string>
+    <string name="search_global">Search the entire media library</string>
     <string name="playlist_save">Save Playlist</string>
     <string name="playlist_name_hint">Playlist name</string>
     <string name="chapters">Chapters</string>
@@ -835,7 +835,7 @@
     <string name="browser_quick_access">Quick Access</string>
     <string name="browser_storages">Storages</string>
     <string name="msg_delete_failed">Failed to delete media %1$s</string>
-    <string name="renderer_list_title">Displays</string>
+    <string name="renderer_list_title">Playback devices</string>
     <string name="sdcard_permission_dialog_title">You have to grant VLC write access to your SD Card</string>
     <string name="sdcard_permission_dialog_message">VLC cannot delete this file without write access permission.\nPlease go to your SD Card and click on \"Select\".\nYou may have to click on \"Show SD card\" first in the top-right menu</string>
     <string name="dialog_sd_wizard">Show me</string>
@@ -891,7 +891,7 @@
     <string name="ctx_player_subs_track">Subtitles track</string>
     <string name="ctx_pip_title">Pop-Up player</string>
     <string name="device_dialog_title">External device inserted</string>
-    <string name="device_dialog_message">You just plugged a new storage device to your TV box, do you want to open it with VLC?</string>
+    <string name="device_dialog_message">You just connected a new storage device to your TV box. Do you want to open it in VLC?</string>
     <string name="videos_folders_title">Videos by folders</string>
     <string name="videos_groups_title">Video groups</string>
     <string name="video_save_clone_mode">Automatically activate clone mode?</string>
@@ -1097,11 +1097,11 @@
     <string name="video_hud_timeout_summary">%ss</string>
     <string name="remove_from_history">Remove from history</string>
     <string name="prefersmbv1">Prefer SMB 1</string>
-    <string name="prefersmbv1_summary">Uncheck this setting if you have some difficulties browsing your SMB server</string>
+    <string name="prefersmbv1_summary">Turn this setting off if you have trouble browsing your SMB server.</string>
     <string name="apply_to_all">Apply to all videos</string>
     <string name="audio_delay_global">Audio delay set to %s ms for all videos</string>
     <string name="audio_delay_bt">Audio delay set to %s ms for the bluetooth device</string>
-    <string name="go_to_folder">Browse parent</string>
+    <string name="go_to_folder">Go to parent folder</string>
     <string name="go_to_album">Go to album</string>
     <string name="go_to_artist">Go to artist</string>
     <string name="go_to_album_artist">Go to album artist</string>
@@ -1110,9 +1110,9 @@
     <string name="enqueuing">Loading your media</string>
     <string name="soundfont">MIDI SoundFont</string>
     <string name="soundfont_summary">Pick a SoundFont file to play midi audio tracks</string>
-    <string name="missing_media_snack">Media is missing. Hide all missing media?</string>
+    <string name="missing_media_snack">Media is missing. Open settings to hide missing media?</string>
     <string name="browser_show_missing_media">Show missing media</string>
-    <string name="browser_show_missing_media_summary">Show distant media even if they are not present</string>
+    <string name="browser_show_missing_media_summary">Show remote media items even when they are currently unavailable</string>
     <string name="parental_control">Parental control</string>
     <string name="safe_mode">Safe mode</string>
     <string name="safe_mode_summary">When activated, files cannot be deleted or playlist modified without entering the pin</string>
@@ -1227,7 +1227,7 @@
     <string name="fold_optimize">Optimize for folding screens</string>
     <string name="foldable">Foldable screen</string>
     <string name="undo">Undo</string>
-    <string name="add_server_favorite">Add a server favorite</string>
+    <string name="add_server_favorite">Add server to favorites</string>
     <string name="widget_theme">Widget theme</string>
     <string name="widget_preferences">Configure widget</string>
     <string name="material_you">Material You (pulls colors from wallpaper)</string>
