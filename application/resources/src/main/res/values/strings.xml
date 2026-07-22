@@ -575,13 +575,13 @@
 
     <string name="performance_prefs_category">Performance</string>
     <string name="deblocking">Deblocking filter settings</string>
-    <string name="deblocking_summary">Changing the deblocking filter settings could improve video quality (advanced users only)</string>
+    <string name="deblocking_summary">Adjust deblocking to balance video quality and decoding speed (advanced users only)</string>
     <string name="deblocking_always">Full deblocking (slowest)</string>
     <string name="deblocking_nonref">Medium deblocking</string>
     <string name="deblocking_nonkey">Low deblocking</string>
     <string name="deblocking_all">No deblocking (fastest)</string>
     <string name="enable_frame_skip">Frame skip</string>
-    <string name="enable_frame_skip_summary">Speed up decoding but could lower video quality</string>
+    <string name="enable_frame_skip_summary">Frame skipping speeds up decoding but may reduce video quality</string>
     <string name="enable_time_stretching_audio">Time-stretching audio</string>
     <string name="enable_time_stretching_audio_summary">Speed up and slow down audio without changing the pitch (requires a fast device)</string>
 
@@ -598,14 +598,14 @@
     <string name="clear_history">Clear history</string>
     <string name="clear_history_message">You will lose your history, your current playlists and your progresses</string>
     <string name="set_locale">Set locale</string>
-    <string name="network_caching">Network caching value</string>
-    <string name="network_caching_summary">The amount of time to buffer network media (in ms) for software decoding\nSet to 0 to disable</string>
+    <string name="network_caching">Network caching duration (ms)</string>
+    <string name="network_caching_summary">Network media buffering duration in milliseconds\nSet to 0 to disable</string>
     <string name="resume_playback_title">Resume playback after a call</string>
-    <string name="resume_playback_summary">Stay in pause otherwise</string>
+    <string name="resume_playback_summary">If disabled, playback remains paused after a call</string>
     <string name="blurred_cover_background_title">Blurred cover background</string>
-    <string name="blurred_cover_background_summary">Blurred cover in audio player background</string>
+    <string name="blurred_cover_background_summary">Display a blurred cover as the audio player background</string>
     <string name="force_shuffle_title">Force shuffle</string>
-    <string name="force_shuffle_summary">Force shuffling when launching a playback</string>
+    <string name="force_shuffle_summary">Always enable shuffle when playback starts</string>
     <string name="network_caching_popup">This value must be between 0 and 60000 ms</string>
     <string name="quit">Quit and restart application</string>
     <string name="restart_message">Changes will take effect once application has restarted.\n\nRestart now?</string>
@@ -631,12 +631,12 @@
     <string name="http_user_agent">HTTP user agent</string>
     <string name="custom_libvlc_options">Custom libVLC options</string>
     <string name="custom_libvlc_options_invalid">Invalid libVLC options!</string>
-    <string name="dav1d_thread_number">Dav1d thread number</string>
-    <string name="dav1d_thread_number_invalid">Invalid thread number! (>=1)</string>
-    <string name="browser_quick_play">Browser quick play menu</string>
+    <string name="dav1d_thread_number">Number of dav1d threads</string>
+    <string name="dav1d_thread_number_invalid">Thread count must be an integer of at least 1.</string>
+    <string name="browser_quick_play">Quick play in browser menus</string>
     <string name="browser_quick_play_summary">Add a quick play action in the browser items\' menu. It will load your media faster but some metadata may be missing</string>
     <string name="browser_quick_play_default">Quick play as default action</string>
-    <string name="browser_quick_play_default_summary">If activated, taping a browser item will play it using quick play</string>
+    <string name="browser_quick_play_default_summary">If enabled, tapping a browser item plays it using quick play.</string>
 
     <string name="serious_crash">Unfortunately, a serious error has occurred and VLC had to close.</string>
     <string name="help_us_send_log">Help us improving VLC by sending the following crash log:</string>
