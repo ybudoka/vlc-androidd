@@ -6,6 +6,7 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="app_name" translatable="false">VLC</string>
+    <string name="general">General</string>
     <string name="other">Other</string>
     <string name="sortby">Sort by…</string>
     <string name="sortby_name">Name</string>
@@ -676,6 +677,8 @@
     <string name="notset">Not set</string>
     <string name="go_to_chapter">Go to chapter…</string>
     <string name="current_chapter">Chapter: %s</string>
+    <string name="next_chapter">Next chapter</string>
+    <string name="previous_chapter">Previous chapter</string>
     <string name="confirm_resume">Resume from last position?</string>
     <string name="apply_playqueue">Apply for all the play queue</string>
     <string name="confirm_resume_title">Resume played videos</string>
@@ -1262,6 +1265,7 @@
     <string name="enable_screenshot_gesture">Tap with 3 fingers</string>
     <string name="enable_screenshot_button">Show the screenshot button</string>
     <string name="enable_screenshot_button_and_gesture">Button and gesture</string>
+    <string name="open_audio_player">Open audio player</string>
 
 
 
@@ -1445,4 +1449,8 @@
     <string name="feedback_email_warning_try_anyway">Try anyway</string>
     <string name="forum_url" translatable="false">https://forum.videolan.org/viewforum.php?f=35</string>
     <string name="doc_url" translatable="false">https://docs.videolan.me/vlc-user/android/</string>
+    <string name="scroll_to_top">Scroll to top</string>
+    <string name="old_ui">Switch to old interface</string>
+    <string name="new_ui">New interface</string>
+    <string name="edit_play_queue">Edit play queue</string>
 </resources>
