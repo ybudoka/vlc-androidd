@@ -19,8 +19,8 @@
     <string name="sortby_date_last_modified">Recently added</string>
     <string name="sortby_date_insertion">Insertion date</string>
     <string name="sortby_date_release">Release date</string>
-    <string name="sortby_media_number">Media number</string>
-    <string name="sortby_number">Nb tracks</string>
+    <string name="sortby_media_number">Number of videos in group</string>
+    <string name="sortby_number">Track number</string>
     <string name="searchable_hint">Search…</string>
     <string name="history">History</string>
 
@@ -28,8 +28,8 @@
     <string name="sort_alpha_desc">Z → A</string>
     <string name="sortby_length_asc">Shortest first</string>
     <string name="sortby_length_desc">Longest first</string>
-    <string name="sortby_number_asc">More videos in group</string>
-    <string name="sortby_number_desc">Less videos in group</string>
+    <string name="sortby_number_asc">More videos per group</string>
+    <string name="sortby_number_desc">Fewer videos per group</string>
     <string name="sort_date_asc">Oldest first</string>
     <string name="sort_date_desc">Newest first</string>
 
@@ -42,8 +42,9 @@
     <string name="quick_play">Quick play</string>
     <string name="playback">Playback</string>
     <string name="playback_controls">Playback controls</string>
-    <string name="medialibrary_scan">Media library scan</string>
-    <string name="Medialibrary_progress">Media library scanning progress updates</string>
+    <string name="medialibrary_scan">Media library scanning</string>
+    <string name="scan_media_library">Scan media library</string>
+    <string name="Medialibrary_progress">Notifications about media library scan progress</string>
     <string name="ml_database_warning">Your database contains the list of all of your media. It will be shared with VLC\'s developers</string>
     <string name="logs_warning">May contain info about your played media. It will be shared with VLC\'s developers</string>
     <string name="play_from_start">Play from start</string>
@@ -159,14 +160,14 @@
     <string name="directories">Directories</string>
     <string name="loading">Loading</string>
     <string name="please_wait">Please wait…</string>
-    <string name="nomedia">No media files found, please transfer some files to your device or adjust your preferences.</string>
+    <string name="nomedia">No media found.</string>
     <string name="nofav">No favorite found.</string>
-    <string name="empty_search">No item found for search %s</string>
+    <string name="empty_search">No items found for \"%s\".</string>
     <string name="noplaylist">No playlist found.</string>
     <string name="nosubfolder">No subfolder</string>
     <string name="directorynotfound">The directory path \'%1$s\' was not found.</string>
     <string name="nohistory">You have no playback history yet.</string>
-    <string name="cant_ban_root">You can\'t ban a root folder</string>
+    <string name="cant_ban_root">A root folder cannot be excluded from the media library.</string>
 
     <string name="cover_art">Cover art</string>
     <string name="shuffle_all_title">Shuffle all</string>
