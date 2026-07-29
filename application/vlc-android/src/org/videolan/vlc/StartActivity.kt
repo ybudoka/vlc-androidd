@@ -41,6 +41,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.videolan.libvlc.util.AndroidUtil
 import org.videolan.medialibrary.MLServiceLocator
+import org.videolan.medialibrary.interfaces.media.MediaWrapper
+import org.videolan.medialibrary.interfaces.media.MediaWrapper.TYPE_VIDEO
+import org.videolan.medialibrary.interfaces.media.Playlist
 import org.videolan.resources.ACTION_PLAY_FROM_SEARCH
 import org.videolan.resources.ACTION_SEARCH_GMS
 import org.videolan.resources.ACTION_VIEW_ARC
@@ -250,14 +253,24 @@ class StartActivity : FragmentActivity() {
                 val id = split.last()
                 lifecycleScope.launch {
                     getFromMl {
-                        val album = when(type) {
+                        val mlItem = when(type) {
                          "album" ->   getAlbum(id.toLong())
                          "artist" ->   getArtist(id.toLong())
                          "genre" ->   getGenre(id.toLong())
                          "playlist" ->   getPlaylist(id.toLong(), false, false)
                          else ->   getMedia(id.toLong())
                         }
-                        MediaUtils.playTracks(this@StartActivity, album, 0)
+                        if (mlItem is MediaWrapper && mlItem.type == TYPE_VIDEO ||
+                            (mlItem is Playlist && mlItem.tracks.isNotEmpty() && mlItem.tracks[0].type == TYPE_VIDEO)) {
+                            val mainIntent = Intent(Intent.ACTION_VIEW)
+                                .setClassName(applicationContext, if (tv) TV_MAIN_ACTIVITY else MOBILE_MAIN_ACTIVITY)
+                                .setAction(action)
+                            // Start the main activity and not the videoplayer so that when pressing
+                            // back to leave the player it will open the MainPage and not quit the
+                            // app, this is to keep a consistent behavior when leaving the video player
+                            startActivity(mainIntent)
+                        } else
+                            MediaUtils.playTracks(this@StartActivity, mlItem, 0)
                     }
                 }
             } else if(action != null && action== "vlc.remoteaccess.share") {

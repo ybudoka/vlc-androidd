@@ -44,6 +44,7 @@ import org.videolan.vlc.gui.dialogs.UPDATE_DATE
 import org.videolan.vlc.gui.dialogs.UPDATE_URL
 import org.videolan.vlc.gui.dialogs.UpdateDialog
 import org.videolan.vlc.gui.helpers.hf.StoragePermissionsDelegate
+import org.videolan.vlc.gui.video.VideoPlayerActivity
 import org.videolan.vlc.reloadLibrary
 import org.videolan.vlc.util.AutoUpdate
 import org.videolan.vlc.util.LifecycleAwareScheduler
@@ -88,6 +89,25 @@ class MainTvActivity : BaseTvActivity(), StoragePermissionsDelegate.CustomAction
                 }
                 updateDialog.show(supportFragmentManager, "fragment_update")
             }
+        }
+
+        checkStartPlaylistShortcut(intent)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        // If the app is not in the destroyed state, the intent will not go through
+        // onCreate, so onNewIntent is also needed
+        checkStartPlaylistShortcut(intent)
+    }
+
+    // Check if the app was opened from a playlist shortcut with a video as the first item.
+    private fun checkStartPlaylistShortcut(intent: Intent?) {
+        if (intent != null && intent.action != null && intent.action!!.startsWith("vlc.mediashortcut:")) {
+            intent.action = null
+            val startIntent = Intent(this, VideoPlayerActivity::class.java)
+            startIntent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+            startActivity(startIntent)
         }
     }
 
