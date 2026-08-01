@@ -270,13 +270,13 @@
 
 
     <string name="playback_history_title">Playback history</string>
-    <string name="playback_history_summary">Save all media played in History section</string>
+    <string name="playback_history_summary">Save all played media to playback history</string>
     <string name="video_resume_playback_title">Video play queue history</string>
-    <string name="video_resume_playback_summary">Allow saving the video play queue to resume later</string>
+    <string name="video_resume_playback_summary">Save the video play queue so playback can resume later</string>
     <string name="audio_resume_playback_title">Audio play queue history</string>
-    <string name="audio_resume_playback_warning">Disabling the audio play queue history may lead to some behavior issues.\nAfter disabling it you may not be able to resume the playback from:\n\n\t- a  bluetooth device\n\t- the widget\n\t- the media notification</string>
-    <string name="playback_history_warning">Disabling the playback history will hide the history, the media progress and the seen markers. The app will continue to save your activity and it will be restored if the history is turned back on.\nIf you want to completely stop saving your activity, use the incognito mode instead.\nYou can also clear your history in the history screen or in the advanced settings.</string>
-    <string name="audio_resume_playback_summary">Allow saving the audio play queue to resume later</string>
+    <string name="audio_resume_playback_warning">Disabling audio play queue history may cause some features to stop working.\nAfter disabling it, you may not be able to resume playback from:\n\n\t- a Bluetooth device\n\t- the widget\n\t- the media notification</string>
+    <string name="playback_history_warning">Disabling playback history will hide your history, media playback progress, and watched markers. The app will continue saving your activity and will restore it when playback history is turned back on.\nTo stop saving your activity completely, use incognito mode instead.\nYou can also clear your history from the History screen or Advanced settings.</string>
+    <string name="audio_resume_playback_summary">Save the audio play queue so playback can resume later</string>
 
     <string name="play_button">Play Button</string>
 
@@ -575,13 +575,13 @@
 
     <string name="performance_prefs_category">Performance</string>
     <string name="deblocking">Deblocking filter settings</string>
-    <string name="deblocking_summary">Changing the deblocking filter settings could improve video quality (advanced users only)</string>
+    <string name="deblocking_summary">Adjust deblocking to balance video quality and decoding speed (advanced users only)</string>
     <string name="deblocking_always">Full deblocking (slowest)</string>
     <string name="deblocking_nonref">Medium deblocking</string>
     <string name="deblocking_nonkey">Low deblocking</string>
     <string name="deblocking_all">No deblocking (fastest)</string>
     <string name="enable_frame_skip">Frame skip</string>
-    <string name="enable_frame_skip_summary">Speed up decoding but could lower video quality</string>
+    <string name="enable_frame_skip_summary">Frame skipping speeds up decoding but may reduce video quality</string>
     <string name="enable_time_stretching_audio">Time-stretching audio</string>
     <string name="enable_time_stretching_audio_summary">Speed up and slow down audio without changing the pitch (requires a fast device)</string>
 
@@ -598,14 +598,14 @@
     <string name="clear_history">Clear history</string>
     <string name="clear_history_message">You will lose your history, your current playlists and your progresses</string>
     <string name="set_locale">Set locale</string>
-    <string name="network_caching">Network caching value</string>
-    <string name="network_caching_summary">The amount of time to buffer network media (in ms) for software decoding\nSet to 0 to disable</string>
+    <string name="network_caching">Network caching duration (ms)</string>
+    <string name="network_caching_summary">Network media buffering duration in milliseconds\nSet to 0 to disable</string>
     <string name="resume_playback_title">Resume playback after a call</string>
-    <string name="resume_playback_summary">Stay in pause otherwise</string>
+    <string name="resume_playback_summary">If disabled, playback remains paused after a call</string>
     <string name="blurred_cover_background_title">Blurred cover background</string>
-    <string name="blurred_cover_background_summary">Blurred cover in audio player background</string>
+    <string name="blurred_cover_background_summary">Display a blurred cover as the audio player background</string>
     <string name="force_shuffle_title">Force shuffle</string>
-    <string name="force_shuffle_summary">Force shuffling when launching a playback</string>
+    <string name="force_shuffle_summary">Always enable shuffle when playback starts</string>
     <string name="network_caching_popup">This value must be between 0 and 60000 ms</string>
     <string name="quit">Quit and restart application</string>
     <string name="restart_message">Changes will take effect once application has restarted.\n\nRestart now?</string>
@@ -631,12 +631,12 @@
     <string name="http_user_agent">HTTP user agent</string>
     <string name="custom_libvlc_options">Custom libVLC options</string>
     <string name="custom_libvlc_options_invalid">Invalid libVLC options!</string>
-    <string name="dav1d_thread_number">Dav1d thread number</string>
-    <string name="dav1d_thread_number_invalid">Invalid thread number! (>=1)</string>
-    <string name="browser_quick_play">Browser quick play menu</string>
+    <string name="dav1d_thread_number">Number of dav1d threads</string>
+    <string name="dav1d_thread_number_invalid">Thread count must be an integer of at least 1.</string>
+    <string name="browser_quick_play">Quick play in browser menus</string>
     <string name="browser_quick_play_summary">Add a quick play action in the browser items\' menu. It will load your media faster but some metadata may be missing</string>
     <string name="browser_quick_play_default">Quick play as default action</string>
-    <string name="browser_quick_play_default_summary">If activated, taping a browser item will play it using quick play</string>
+    <string name="browser_quick_play_default_summary">If enabled, tapping a browser item plays it using quick play.</string>
 
     <string name="serious_crash">Unfortunately, a serious error has occurred and VLC had to close.</string>
     <string name="help_us_send_log">Help us improving VLC by sending the following crash log:</string>
@@ -669,7 +669,7 @@
     <string name="browse_network">Browse network</string>
     <string name="search_hint">Search media</string>
     <string name="search_in_list_hint">Search in current list</string>
-    <string name="search_global">Search in all media library</string>
+    <string name="search_global">Search the entire media library</string>
     <string name="playlist_save">Save Playlist</string>
     <string name="playlist_name_hint">Playlist name</string>
     <string name="chapters">Chapters</string>
@@ -735,18 +735,18 @@
     <string name="allow_settings_access_ringtone_description">VLC needs you to grant this permission to set up this song as your ringtone.</string>
     <string name="allow_settings_access_brightness_title">Allow VLC to change brightness mode</string>
     <string name="allow_settings_access_brightness_description">VLC needs you to grant this permission to change your brightness mode.</string>
-    <string name="allow_draw_overlays_title">Allow VLC player popup over other apps</string>
-    <string name="allow_sdraw_overlays_description">VLC needs you to grant this permission display your video in a popup over other applications.</string>
+    <string name="allow_draw_overlays_title">Allow VLC to display the floating popup player over other apps</string>
+    <string name="allow_sdraw_overlays_description">VLC needs this permission to display your video in the floating popup player over other apps.</string>
     <string name="allow_pip">Allow VLC player to launch the Picture in Picture</string>
     <string name="allow_pip_description">VLC needs you to grant this permission to display your video in Picture in Picture mode.</string>
     <string name="permission_ask_again">Grant permission</string>
     <string name="pick_file">Pick a file</string>
     <string name="permission_not_granted">Permission not granted</string>
     <string name="permission_expanation_no_allow">You won\'t be able to auto-discover your media nor use external subtitles</string>
-    <string name="permission_expanation_allow">You will be able to only play streams or network media</string>
-    <string name="permission_onboarding_no_perm">You won\'t be able to auto-discover your media.\nYou will be able to only play streams or network media</string>
+    <string name="permission_expanation_allow">You will only be able to play streams or network media</string>
+    <string name="permission_onboarding_no_perm">You won\'t be able to auto-discover your media.\nYou will only be able to play streams or network media</string>
     <string name="permission_onboarding_perm_media">You will only be able to auto-discover standard media files</string>
-    <string name="permission_onboarding_perm_all">You will be able to auto-discover all your files to play all types of media even weird ones, or compressed files</string>
+    <string name="permission_onboarding_perm_all">You will be able to auto-discover all files and play any type of media, including unusual or compressed files</string>
     <string name="exit_app">Close VLC</string>
     <string name="exit_app_msg">Are you sure you want to quit VLC?</string>
     <string name="widget_explanation_title">VLC widgets</string>
@@ -835,9 +835,9 @@
     <string name="browser_quick_access">Quick Access</string>
     <string name="browser_storages">Storages</string>
     <string name="msg_delete_failed">Failed to delete media %1$s</string>
-    <string name="renderer_list_title">Displays</string>
+    <string name="renderer_list_title">Playback devices</string>
     <string name="sdcard_permission_dialog_title">You have to grant VLC write access to your SD Card</string>
-    <string name="sdcard_permission_dialog_message">VLC cannot delete this file without write access permission.\nPlease go to your SD Card and click on \"Select\".\nYou may have to click on \"Show SD card\" first in the top-right menu</string>
+    <string name="sdcard_permission_dialog_message">VLC cannot delete this file without write access.\nOpen your SD card and tap “Select”.\nYou may first need to tap “Show SD card” in the top-right menu.</string>
     <string name="dialog_sd_wizard">Show me</string>
     <string name="renderers_disconnect">Disconnect</string>
     <string name="audio_digital_failed">Failed to change Audio Digital Output state</string>
@@ -891,7 +891,7 @@
     <string name="ctx_player_subs_track">Subtitles track</string>
     <string name="ctx_pip_title">Pop-Up player</string>
     <string name="device_dialog_title">External device inserted</string>
-    <string name="device_dialog_message">You just plugged a new storage device to your TV box, do you want to open it with VLC?</string>
+    <string name="device_dialog_message">You just connected a new storage device to your TV box. Do you want to open it in VLC?</string>
     <string name="videos_folders_title">Videos by folders</string>
     <string name="videos_groups_title">Video groups</string>
     <string name="video_save_clone_mode">Automatically activate clone mode?</string>
@@ -901,10 +901,10 @@
     <string name="welcome_title">Welcome to VLC!</string>
     <string name="welcome_subtitle">The free and open source multimedia player</string>
     <string name="permission_media">VLC needs your permission to access media on your device</string>
-    <string name="permission_video">VLC needs your permission to access video media on your device</string>
-    <string name="permission_audio">VLC needs your permission to access audio media on your device</string>
+    <string name="permission_video">VLC needs your permission to access videos on your device</string>
+    <string name="permission_audio">VLC needs your permission to access audio files on your device</string>
     <string name="medialibrary_scan_explanation">VLC can automatically scan your device to organize your media collection.</string>
-    <string name="player_title_fd_warning">Without the storage permission, VLC cannot retrieve the media title nor save the progress</string>
+    <string name="player_title_fd_warning">Without storage permission, VLC cannot retrieve the media title or save your playback position</string>
     <string name="onboarding_theme_title">Make yourself at home</string>
     <string name="done">Done</string>
     <string name="onboarding_scan_title">Auto-discover your media</string>
@@ -1091,17 +1091,17 @@
     <string name="air_action_next">Next item in playback</string>
     <string name="air_action_previous">Previous item in playback</string>
     <string name="allow_otg">Allow OTG access</string>
-    <string name="allow_otg_description">Please select your OTG drive to allow access to VLC.</string>
+    <string name="allow_otg_description">Please select your OTG drive to grant VLC access to it.</string>
     <string name="timeout_infinite">Infinite</string>
     <string name="video_hud_timeout">Video player controls hiding delay</string>
     <string name="video_hud_timeout_summary">%ss</string>
     <string name="remove_from_history">Remove from history</string>
     <string name="prefersmbv1">Prefer SMB 1</string>
-    <string name="prefersmbv1_summary">Uncheck this setting if you have some difficulties browsing your SMB server</string>
+    <string name="prefersmbv1_summary">Turn this setting off if you have trouble browsing your SMB server.</string>
     <string name="apply_to_all">Apply to all videos</string>
     <string name="audio_delay_global">Audio delay set to %s ms for all videos</string>
     <string name="audio_delay_bt">Audio delay set to %s ms for the bluetooth device</string>
-    <string name="go_to_folder">Browse parent</string>
+    <string name="go_to_folder">Go to parent folder</string>
     <string name="go_to_album">Go to album</string>
     <string name="go_to_artist">Go to artist</string>
     <string name="go_to_album_artist">Go to album artist</string>
@@ -1110,9 +1110,9 @@
     <string name="enqueuing">Loading your media</string>
     <string name="soundfont">MIDI SoundFont</string>
     <string name="soundfont_summary">Pick a SoundFont file to play midi audio tracks</string>
-    <string name="missing_media_snack">Media is missing. Hide all missing media?</string>
+    <string name="missing_media_snack">Media is missing. Open settings to hide missing media?</string>
     <string name="browser_show_missing_media">Show missing media</string>
-    <string name="browser_show_missing_media_summary">Show distant media even if they are not present</string>
+    <string name="browser_show_missing_media_summary">Show remote media items even when they are currently unavailable</string>
     <string name="parental_control">Parental control</string>
     <string name="safe_mode">Safe mode</string>
     <string name="safe_mode_summary">When activated, files cannot be deleted or playlist modified without entering the pin</string>
@@ -1227,7 +1227,7 @@
     <string name="fold_optimize">Optimize for folding screens</string>
     <string name="foldable">Foldable screen</string>
     <string name="undo">Undo</string>
-    <string name="add_server_favorite">Add a server favorite</string>
+    <string name="add_server_favorite">Add server to favorites</string>
     <string name="widget_theme">Widget theme</string>
     <string name="widget_preferences">Configure widget</string>
     <string name="material_you">Material You (pulls colors from wallpaper)</string>
