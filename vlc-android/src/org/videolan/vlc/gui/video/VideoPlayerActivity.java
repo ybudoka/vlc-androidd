@@ -134,6 +134,8 @@ public class VideoPlayerActivity extends Activity implements IVideoPlayer {
     private static final int SHOW_PROGRESS = 2;
     private static final int SURFACE_SIZE = 3;
     private static final int FADE_OUT_INFO = 4;
+    private static final int RESUME_SEEK = 5;
+    private static final int RESUME_CHECK = 6;
     private boolean mDragging;
     private boolean mShowing;
     private int mUiVisibility = -1;
@@ -156,6 +158,38 @@ public class VideoPlayerActivity extends Activity implements IVideoPlayer {
     private boolean mIsLocked = false;
     private int mLastAudioTrack = -1;
     private int mLastSpuTrack = -2;
+
+    /**
+     * Playback resume.
+     *
+     * A seek asked for right after the media has been queued is silently
+     * dropped by the input when it is not able to honour it yet, and a damaged
+     * file (broken index, truncated stream, missing moov atom, bogus
+     * timestamps) may need a long time before it becomes seekable -- or never
+     * become seekable at all. So instead of firing a single seek and hoping for
+     * the best, the wanted position is remembered here, then applied, checked
+     * and retried once the playback has actually started.
+     */
+    /** Delay between two attempts at reaching the saved position, in ms */
+    private static final int RESUME_RETRY_DELAY = 300;
+    /** Delay left to the input to honour a seek before checking it, in ms */
+    private static final int RESUME_CHECK_DELAY = 500;
+    /** Number of attempts before the saved position is given up on */
+    private static final int RESUME_MAX_RETRIES = 12;
+    /** Distance to the end of the media below which the position is dropped */
+    private static final long RESUME_END_MARGIN = 5000;
+    /** Rewind applied to the saved position, to compensate the loading time */
+    private static final long RESUME_BACK_MARGIN = 5000;
+    /** Maximum distance to the wanted position for a resume to be a success */
+    private static final long RESUME_TOLERANCE = 5000;
+    /** Position (ms) to restore, -1 when there is nothing to restore */
+    private long mResumeTime = -1;
+    /** Relative position to restore, used when timestamps are unusable */
+    private float mResumePosition = -1f;
+    private int mResumeRetries = 0;
+    private boolean mResumePending = false;
+    /** True once the media has been restarted because the resume failed */
+    private boolean mResumeRestarted = false;
 
     /**
      * For uninterrupted switching between audio and video mode
@@ -307,6 +341,7 @@ public class VideoPlayerActivity extends Activity implements IVideoPlayer {
         SharedPreferences preferences = getSharedPreferences(PreferencesActivity.NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putLong(PreferencesActivity.VIDEO_RESUME_TIME, -1);
+        editor.putLong(PreferencesActivity.VIDEO_RESUME_LENGTH, -1);
         // Also clear the subs list, because it is supposed to be per session
         // only (like desktop VLC). We don't want the customs subtitle file
         // to persist forever with this video.
@@ -357,11 +392,33 @@ public class VideoPlayerActivity extends Activity implements IVideoPlayer {
 
         long time = mLibVLC.getTime();
         long length = mLibVLC.getLength();
-        //remove saved position if in the last 5 seconds
-        if (length - time < 5000)
-            time = 0;
-        else
-            time -= 5000; // go back 5 seconds, to compensate loading time
+        /*
+         * A negative time means there is no playback to save the position of:
+         * overwriting the stored position with it would simply lose it.
+         */
+        final boolean savePosition = time >= 0 || (mResumePending && mResumeTime > 0);
+        if (mResumePending && mResumeTime > time) {
+            /*
+             * We are leaving while the saved position is still being restored,
+             * which is the normal course of things with a damaged file: keep
+             * that position rather than the one we are stuck at, otherwise
+             * every attempt at playing the file would move it closer to zero.
+             */
+            time = mResumeTime;
+        } else if (savePosition) {
+            /*
+             * Remove the saved position if we are in the last 5 seconds, but
+             * only when the length is actually known: a damaged or still
+             * growing file reports a null length, and the check used to throw
+             * away the position of every single one of them.
+             */
+            if (length > 0 && length - time < RESUME_END_MARGIN)
+                time = 0;
+            else
+                // go back 5 seconds, to compensate loading time
+                time = Math.max(0, time - RESUME_BACK_MARGIN);
+        }
+        cancelResume();
 
         /*
          * Pausing here generates errors because the vout is constantly
@@ -385,16 +442,28 @@ public class VideoPlayerActivity extends Activity implements IVideoPlayer {
         SharedPreferences preferences = getSharedPreferences(PreferencesActivity.NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         // Save position
-        if (time >= 0) {
+        if (savePosition) {
             if(MediaDatabase.getInstance(this).mediaItemExists(mLocation)) {
                 editor.putString(PreferencesActivity.LAST_MEDIA, mLocation);
                 MediaDatabase.getInstance(this).updateMedia(
                         mLocation,
                         MediaDatabase.mediaColumn.MEDIA_TIME,
                         time);
+                /*
+                 * Refresh the stored length with what the input really saw: the
+                 * length guessed when the library was scanned is often wrong on
+                 * a damaged file, and the resume relies on it to fall back on a
+                 * relative seek.
+                 */
+                if (length > 0)
+                    MediaDatabase.getInstance(this).updateMedia(
+                            mLocation,
+                            MediaDatabase.mediaColumn.MEDIA_LENGTH,
+                            length);
             } else {
                 // Video file not in media library, store time just for onResume()
                 editor.putLong(PreferencesActivity.VIDEO_RESUME_TIME, time);
+                editor.putLong(PreferencesActivity.VIDEO_RESUME_LENGTH, length);
             }
         }
         // Save selected subtitles
@@ -681,6 +750,9 @@ public class VideoPlayerActivity extends Activity implements IVideoPlayer {
                 case EventHandler.MediaPlayerPlaying:
                     Log.i(TAG, "MediaPlayerPlaying");
                     activity.setESTracks();
+                    /* The input is running: this is the earliest moment at
+                     * which it may accept a seek. */
+                    activity.startResume();
                     break;
                 case EventHandler.MediaPlayerPaused:
                     Log.i(TAG, "MediaPlayerPaused");
@@ -743,6 +815,12 @@ public class VideoPlayerActivity extends Activity implements IVideoPlayer {
                 case FADE_OUT_INFO:
                     activity.fadeOutInfo();
                     break;
+                case RESUME_SEEK:
+                    activity.applyResume();
+                    break;
+                case RESUME_CHECK:
+                    activity.checkResume();
+                    break;
             }
         }
     };
@@ -751,13 +829,210 @@ public class VideoPlayerActivity extends Activity implements IVideoPlayer {
         return !mDragging && mShowing && mLibVLC.isPlaying();
     }
 
+    /**
+     * Remember a position to restore once the playback is really running.
+     *
+     * @param time position to restore, in ms
+     * @param length known length of the media, or a negative value when it is
+     *               unknown; used to compute the relative fallback position
+     */
+    private void setResumeTarget(long time, long length) {
+        cancelResume();
+        if (time <= 0)
+            return;
+        mResumeTime = time;
+        /*
+         * Keep a relative position as a fallback: when the timestamps of a
+         * damaged file are unusable, seeking by percentage of the stream may
+         * still land somewhere sensible. Never aim at the very end of the
+         * media, that is the surest way to trigger an immediate end of stream.
+         */
+        mResumePosition = length > 0
+                ? Math.min((float) time / (float) length, 0.95f)
+                : -1f;
+        mResumePending = true;
+    }
+
+    private void cancelResume() {
+        mResumePending = false;
+        mResumeTime = -1;
+        mResumePosition = -1f;
+        mResumeRetries = 0;
+        mHandler.removeMessages(RESUME_SEEK);
+        mHandler.removeMessages(RESUME_CHECK);
+    }
+
+    /**
+     * Start restoring the saved position, if any.
+     */
+    private void startResume() {
+        if (!mResumePending)
+            return;
+        mHandler.removeMessages(RESUME_SEEK);
+        mHandler.removeMessages(RESUME_CHECK);
+        mHandler.sendEmptyMessage(RESUME_SEEK);
+    }
+
+    private void applyResume() {
+        if (mLibVLC == null || !mResumePending)
+            return;
+
+        final long length = mLibVLC.getLength();
+
+        /*
+         * A damaged file is frequently shorter than what it pretends to be, and
+         * the media may also have been truncated since the position was saved.
+         * Never seek past the last playable seconds.
+         */
+        if (length > 0 && mResumeTime > length - RESUME_END_MARGIN) {
+            Log.i(TAG, "Saved position (" + mResumeTime + "ms) is out of the "
+                    + length + "ms long media, clamping it");
+            mResumeTime = length - RESUME_END_MARGIN;
+            if (mResumeTime <= 0) {
+                /* Nothing worth restoring, play it from the beginning */
+                cancelResume();
+                return;
+            }
+            mResumePosition = Math.min((float) mResumeTime / (float) length, 0.95f);
+        }
+
+        if (!mLibVLC.isSeekable()) {
+            /* Not seekable *yet*: a broken index may need to be rebuilt first */
+            Log.i(TAG, "Media not seekable yet, delaying the resume");
+            retryResume();
+            return;
+        }
+
+        if (mResumeTime > 0)
+            mLibVLC.setTime(mResumeTime);
+        else if (mResumePosition > 0f)
+            mLibVLC.setPosition(mResumePosition);
+        else {
+            cancelResume();
+            return;
+        }
+
+        mHandler.removeMessages(RESUME_CHECK);
+        mHandler.sendEmptyMessageDelayed(RESUME_CHECK, RESUME_CHECK_DELAY);
+    }
+
+    /**
+     * Check that the seek really happened. libvlc silently ignores a seek the
+     * input cannot serve, so the only way to know is to look at where we are.
+     */
+    private void checkResume() {
+        if (mLibVLC == null || !mResumePending)
+            return;
+
+        final long target = mResumeTime > 0
+                ? mResumeTime
+                : (long) (mResumePosition * mLibVLC.getLength());
+        final long current = mLibVLC.getTime();
+
+        if (target <= 0
+                || current >= Math.max(target - RESUME_TOLERANCE, target / 2)) {
+            Log.i(TAG, "Playback resumed at " + current + "ms");
+            mResumePending = false;
+            mHandler.removeMessages(RESUME_SEEK);
+            showInfo(getString(R.string.resume_playback_at,
+                    Util.millisToString(current)), 2000);
+            return;
+        }
+
+        Log.i(TAG, "Seek to " + target + "ms was ignored (still at "
+                + current + "ms)");
+        retryResume();
+    }
+
+    private void retryResume() {
+        if (++mResumeRetries > RESUME_MAX_RETRIES) {
+            Log.w(TAG, "Giving up on restoring the playback position");
+            cancelResume();
+            showInfo(R.string.resume_failed, 2000);
+            return;
+        }
+        /*
+         * Half way through, stop insisting with timestamps: on a file whose
+         * index or timestamps are broken, a relative seek is the only thing
+         * left to try.
+         */
+        if (mResumeRetries == RESUME_MAX_RETRIES / 2 && mResumePosition > 0f) {
+            Log.i(TAG, "Falling back to a relative seek");
+            mResumeTime = -1;
+        }
+        mHandler.removeMessages(RESUME_SEEK);
+        mHandler.sendEmptyMessageDelayed(RESUME_SEEK, RESUME_RETRY_DELAY);
+    }
+
+    /**
+     * Drop the position saved for the media being played, so that the next
+     * launch starts from the beginning instead of failing the very same way.
+     */
+    private void clearSavedPosition() {
+        SharedPreferences preferences = getSharedPreferences(PreferencesActivity.NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putLong(PreferencesActivity.VIDEO_RESUME_TIME, -1);
+        editor.putLong(PreferencesActivity.VIDEO_RESUME_LENGTH, -1);
+        editor.commit();
+
+        if (mLocation != null && mLocation.length() > 0
+                && MediaDatabase.getInstance(this).mediaItemExists(mLocation))
+            MediaDatabase.getInstance(this).updateMedia(
+                    mLocation,
+                    MediaDatabase.mediaColumn.MEDIA_TIME,
+                    0L);
+    }
+
+    /**
+     * Play the media again from its beginning, after the saved position turned
+     * out to be unreachable.
+     */
+    private void restartFromStart(int messageId) {
+        mResumeRestarted = true;
+        cancelResume();
+        clearSavedPosition();
+        showInfo(messageId, 3000);
+
+        if (savedIndexPosition > -1)
+            mLibVLC.playIndex(savedIndexPosition);
+        else if (mLocation != null && mLocation.length() > 0)
+            savedIndexPosition = mLibVLC.readMedia(mLocation, false);
+        else {
+            mEndReached = true;
+            finish();
+        }
+    }
+
     private void endReached() {
+        /*
+         * A file whose index is damaged very often reports the end of the
+         * stream as soon as it is asked for a position it cannot reach. The
+         * media is not necessarily over: forget the saved position -- keeping
+         * it would make the file unplayable forever -- and play it from the
+         * beginning instead of closing the player.
+         */
+        if (mResumePending && !mResumeRestarted) {
+            Log.w(TAG, "End reached while restoring the position, restarting from the beginning");
+            restartFromStart(R.string.resume_failed);
+            return;
+        }
         /* Exit player when reach the end */
         mEndReached = true;
         finish();
     }
 
     private void encounteredError() {
+        /*
+         * The media itself may be perfectly playable: it can be the seek to the
+         * saved position that the input was unable to handle. Give the file a
+         * second chance from its beginning before bothering the user.
+         */
+        if (mResumePending && !mResumeRestarted) {
+            Log.w(TAG, "Error while restoring the position, restarting from the beginning");
+            restartFromStart(R.string.resume_failed);
+            return;
+        }
+
         /* Encountered Error, exit player with a message */
         AlertDialog dialog = new AlertDialog.Builder(VideoPlayerActivity.this)
         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -1040,6 +1315,8 @@ public class VideoPlayerActivity extends Activity implements IVideoPlayer {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if (fromUser) {
+                /* The user knows better than the saved position */
+                cancelResume();
                 mLibVLC.setTime(progress);
                 setOverlayProgress();
                 mTime.setText(Util.millisToString(progress));
@@ -1160,6 +1437,8 @@ public class VideoPlayerActivity extends Activity implements IVideoPlayer {
             // unseekable stream
             if(mLibVLC.getLength() <= 0) return;
 
+            /* The user knows better than the saved position */
+            cancelResume();
             long position = mLibVLC.getTime() + delta;
             if (position < 0) position = 0;
             mLibVLC.setTime(position);
@@ -1170,6 +1449,8 @@ public class VideoPlayerActivity extends Activity implements IVideoPlayer {
         public void onSeekTo(long position) {
             // unseekable stream
             if(mLibVLC.getLength() <= 0) return;
+            /* The user knows better than the saved position */
+            cancelResume();
             mLibVLC.setTime(position);
             mTime.setText(Util.millisToString(position));
         }
@@ -1488,6 +1769,10 @@ public class VideoPlayerActivity extends Activity implements IVideoPlayer {
 
         mSurface.setKeepScreenOn(true);
 
+        /* Any pending resume belongs to the media we are about to replace */
+        cancelResume();
+        mResumeRestarted = false;
+
         /* Start / resume playback */
         if (savedIndexPosition > -1) {
             mLibVLC.playIndex(savedIndexPosition);
@@ -1501,22 +1786,27 @@ public class VideoPlayerActivity extends Activity implements IVideoPlayer {
             Media media = MediaDatabase.getInstance(this).getMedia(this, mLocation);
             if(media != null) {
                 // in media library
+                /* The seek is not done here: an input that has just been queued
+                 * is not able to honour it yet, and a damaged one may need
+                 * several attempts. See applyResume(). */
                 if(media.getTime() > 0 && !fromStart)
-                    mLibVLC.setTime(media.getTime());
+                    setResumeTarget(media.getTime(), media.getLength());
 
                 mLastAudioTrack = media.getAudioTrack();
                 mLastSpuTrack = media.getSpuTrack();
             } else {
                 // not in media library
                 long rTime = preferences.getLong(PreferencesActivity.VIDEO_RESUME_TIME, -1);
+                long rLength = preferences.getLong(PreferencesActivity.VIDEO_RESUME_LENGTH, -1);
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putLong(PreferencesActivity.VIDEO_RESUME_TIME, -1);
+                editor.putLong(PreferencesActivity.VIDEO_RESUME_LENGTH, -1);
                 editor.commit();
                 if(rTime > 0)
-                    mLibVLC.setTime(rTime);
+                    setResumeTarget(rTime, rLength);
 
                 if(intentPosition > 0)
-                    mLibVLC.setTime(intentPosition);
+                    setResumeTarget(intentPosition, -1);
             }
 
             String subtitleList_serialized = preferences.getString(PreferencesActivity.VIDEO_SUBTITLE_FILES, null);
