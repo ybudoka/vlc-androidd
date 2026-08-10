@@ -924,13 +924,21 @@ public class VideoPlayerActivity extends Activity implements IVideoPlayer {
         if (mLibVLC == null || !mResumePending)
             return;
 
-        final long target = mResumeTime > 0
-                ? mResumeTime
-                : (long) (mResumePosition * mLibVLC.getLength());
-        final long current = mLibVLC.getTime();
+        final boolean reached;
+        if (mResumeTime > 0) {
+            /* Short positions are reached as soon as we are halfway there:
+             * the input is free to land on the closest keyframe. */
+            reached = mLibVLC.getTime()
+                    >= Math.max(mResumeTime - RESUME_TOLERANCE, mResumeTime / 2);
+        } else {
+            /* The length of a damaged media is not to be trusted, so a
+             * relative seek is checked against a relative position. */
+            reached = mResumePosition > 0f
+                    && mLibVLC.getPosition() >= mResumePosition * 0.9f;
+        }
 
-        if (target <= 0
-                || current >= Math.max(target - RESUME_TOLERANCE, target / 2)) {
+        if (reached) {
+            final long current = mLibVLC.getTime();
             Log.i(TAG, "Playback resumed at " + current + "ms");
             mResumePending = false;
             mHandler.removeMessages(RESUME_SEEK);
@@ -939,8 +947,7 @@ public class VideoPlayerActivity extends Activity implements IVideoPlayer {
             return;
         }
 
-        Log.i(TAG, "Seek to " + target + "ms was ignored (still at "
-                + current + "ms)");
+        Log.i(TAG, "The seek was ignored, still at " + mLibVLC.getTime() + "ms");
         retryResume();
     }
 
