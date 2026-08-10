@@ -7,3 +7,9 @@ local.properties
 .*.swp
 .directory
 env.sh
+
+# Gradle build (see settings.gradle)
+.gradle/
+build/
+*/build/
+java-libs/*/build/
