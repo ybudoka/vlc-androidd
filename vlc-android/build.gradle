@@ -15,6 +15,10 @@ android {
         aidl true
     }
 
+    /* CompatErrorActivity posts its report with the Apache HTTP client, which
+     * was moved out of the framework in API 23. */
+    useLibrary 'org.apache.http.legacy'
+
     /* The legacy (ant) layout: everything lives at the root of vlc-android/ */
     sourceSets {
         main {
