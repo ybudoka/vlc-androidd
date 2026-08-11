@@ -119,7 +119,7 @@ class DebugLogService : Service(), Logcat.Callback, Runnable {
                 when (what) {
                     MSG_STOPPED -> cb.onStopped()
                     MSG_STARTED -> {
-                        cb.onStarted(logList)
+                        cb.onStarted(backlogFittingATransaction())
                     }
                     MSG_ONLOG -> cb.onLog(str)
                     MSG_SAVED -> cb.onSaved(str != null, str)
@@ -129,6 +129,32 @@ class DebugLogService : Service(), Logcat.Callback, Runnable {
 
         }
         callbacks.finishBroadcast()
+    }
+
+    /**
+     * The backlog is handed to the callback in a single binder transaction,
+     * and a parcel bigger than about a megabyte does not go through at all:
+     * the transaction fails and the log screen opens empty, precisely when
+     * there is something to read. A damaged file gets there on its own -- a
+     * demuxer resynchronising through a broken stream writes tens of thousands
+     * of lines in a few seconds.
+     *
+     * Hand over the most recent lines that fit in a fraction of that budget.
+     * save() still writes the whole log.
+     */
+    private fun backlogFittingATransaction(): List<String> {
+        var size = 0
+        val tail = ArrayList<String>()
+        val lines = logList.descendingIterator()
+        while (lines.hasNext()) {
+            val line = lines.next()
+            /* Two bytes per char, plus what a string costs in a parcel */
+            size += line.length * 2 + 8
+            if (size > MAX_TRANSACTION_BYTES) break
+            tail.add(line)
+        }
+        tail.reverse()
+        return tail
     }
 
     @Synchronized
@@ -414,5 +440,7 @@ class DebugLogService : Service(), Logcat.Callback, Runnable {
         private const val MSG_SAVED = 3
 
         private const val MAX_LINES = 20000
+        /** Well under the ~1 MB a binder transaction is allowed to carry */
+        private const val MAX_TRANSACTION_BYTES = 256 * 1024
     }
 }
