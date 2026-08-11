@@ -104,6 +104,8 @@ import kotlin.math.max
 
 private const val TAG = "VLC/PlaylistManager"
 private const val PREVIOUS_LIMIT_DELAY = 5000L
+/** Distance to the end of a media below which resuming is pointless */
+private const val RESUME_END_MARGIN = 5000L
 private const val PLAYLIST_AUDIO_REPEAT_MODE_KEY = "audio_repeat_mode"
 private const val PLAYLIST_VIDEO_REPEAT_MODE_KEY = "video_repeat_mode"
 
@@ -1023,6 +1025,20 @@ class PlaylistManager(val service: PlaybackService) : MediaWrapperList.EventList
             else -> mw.time
         }
         savedTime = 0L
+        /*
+         * The start time is handed to the demuxer as :start-time. Asking it for
+         * a position the stream does not reach ends the playback at once, which
+         * is then recorded as watched -- the saved position is lost, and the
+         * media plays from its beginning at the next attempt anyway. A damaged
+         * or truncated file is routinely shorter than the length that was
+         * recorded for it, so resume from the beginning rather than from a
+         * position that is not there.
+         */
+        if (mw.length > 0L && start >= mw.length - RESUME_END_MARGIN) {
+            Log.w(TAG, "Saved position ($start ms) is past the end of the ${mw.length} ms" +
+                    " long media, starting it over")
+            return 0L
+        }
         return start
     }
 
