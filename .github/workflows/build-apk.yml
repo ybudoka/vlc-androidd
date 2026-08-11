@@ -52,6 +52,18 @@ jobs:
           path: application/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
+      - name: Build the arm64-only APK
+        # What a 64-bit-only device -- a Quest -- can actually load, without
+        # the three other ABIs it will never run
+        run: ./gradlew --no-daemon --console=plain -PabiFilter=arm64-v8a :application:app:assembleDebug
+
+      - name: Upload the arm64-only APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: vlc-debug-apk-arm64
+          path: application/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
       - name: Upload the reports on failure
         if: failure()
         uses: actions/upload-artifact@v4

@@ -34,6 +34,19 @@ android {
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled = true
 
+        /*
+         * -PabiFilter=arm64-v8a packages a single ABI. libvlc ships four of
+         * them and they are the bulk of the ~130 MB a debug APK weighs, while
+         * a device loads exactly one -- and a 64-bit-only one, a Quest among
+         * them, can load nothing but arm64-v8a. Sideloading gets a lot lighter
+         * for it. Left unset, the APK keeps every ABI as before.
+         */
+        if (project.hasProperty('abiFilter')) {
+            ndk {
+                project.property('abiFilter').split(',').each { abiFilters it.trim() }
+            }
+        }
+
         testInstrumentationRunner "org.videolan.vlc.MultidexTestRunner"
         // The following argument makes the Android Test Orchestrator run its
         // "pm clear" command after each test invocation. This command ensures

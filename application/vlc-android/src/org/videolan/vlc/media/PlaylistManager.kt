@@ -156,6 +156,10 @@ class PlaylistManager(val service: PlaybackService) : MediaWrapperList.EventList
     private var preBrowserVolume = -1
     private var parsed = false
     var savedTime = 0L
+    /** Position the media currently playing was resumed at, 0 if it was not */
+    private var resumeStartTime = 0L
+    /** Media whose saved position turned out not to be in the file */
+    private var resumeFailedFor: String? = null
     private var random = SecureRandom()
     private var newMedia = false
     @Volatile
@@ -497,8 +501,11 @@ class PlaylistManager(val service: PlaybackService) : MediaWrapperList.EventList
 
         val mw = mediaList.getMedia(index) ?: return
         val mediaFromMl = medialibrary.getMedia(mw.uri)
-        if (mediaFromMl != null)
+        if (mediaFromMl != null) {
             mw.time = mediaFromMl.time
+            /* Saved instead of a timestamp when the length is unknown */
+            mw.position = mediaFromMl.position
+        }
 
         val isInCustomPiP: Boolean = service.isInPiPMode.value ?: false
         if (mw.type == MediaWrapper.TYPE_VIDEO && !isAppStarted() && !isInCustomPiP) videoBackground = true
@@ -574,6 +581,10 @@ class PlaylistManager(val service: PlaybackService) : MediaWrapperList.EventList
                 }
             }
             media.setEventListener(this@PlaylistManager)
+            /* Remembered so that an end of stream happening before that
+             * position can be told apart from a real one */
+            resumeStartTime = start
+            if (start == 0L) resumeFailedFor = null
             player.startPlayback(media, mediaplayerEventListener, start)
             player.setSlaves(media, mw)
             if (browserAudioActive) player.setVolume(0)
@@ -1012,6 +1023,39 @@ class PlaylistManager(val service: PlaybackService) : MediaWrapperList.EventList
 
     fun getMedia(position: Int) = mediaList.getMedia(position)
 
+    /**
+     * The stream ended before the position we were asked to start from, which
+     * that file therefore does not contain -- a damaged or truncated one
+     * routinely does not reach the position recorded for it. Forget that
+     * position and play the media from its beginning, rather than let it count
+     * as watched and move on to the next one, which is what an end of stream
+     * means everywhere else.
+     *
+     * @return true when the media has been restarted and the end of stream is
+     *              not to be handled any further
+     */
+    private suspend fun restartAfterUnreachableResume(): Boolean {
+        val start = resumeStartTime
+        val media = getCurrentMedia() ?: return false
+        val uri = media.uri.toString()
+        if (start <= 0L || resumeFailedFor == uri || player.getCurrentTime() >= start) return false
+
+        Log.w(TAG, "The media ended at ${player.getCurrentTime()} ms, before the $start ms" +
+                " it was resumed at: playing it from the beginning")
+        /* Only once per media: should it end straight away again, that is a
+         * genuine end of stream and it has to be handled as one. */
+        resumeFailedFor = uri
+        resumeStartTime = 0L
+        savedTime = 0L
+        media.time = 0L
+        media.addFlags(MediaWrapper.MEDIA_FROM_START)
+        withContext(Dispatchers.IO) {
+            medialibrary.findMedia(media)?.let { if (it.id != 0L) medialibrary.setLastTime(it.id, 0L) }
+        }
+        playIndex(currentIndex, forceRestart = true)
+        return true
+    }
+
     private fun getStartTime(mw: MediaWrapper) : Long {
         val start = when {
             mw.hasFlag(MediaWrapper.MEDIA_FROM_START) -> {
@@ -1020,6 +1064,13 @@ class PlaylistManager(val service: PlaybackService) : MediaWrapperList.EventList
             }
             mw.time <= 0L -> when {
                 savedTime > 0L -> savedTime
+                /*
+                 * No timestamp, but a relative position: that is what gets
+                 * saved for a media whose length libvlc could not work out,
+                 * damaged ones first among them, and it was never read back.
+                 * It is only usable once a length is known from somewhere.
+                 */
+                mw.position > 0f && mw.length > 0L -> (mw.position * mw.length).toLong()
                 else -> 0L
             }
             else -> mw.time
@@ -1237,6 +1288,7 @@ class PlaylistManager(val service: PlaybackService) : MediaWrapperList.EventList
                     playingState.value = true
                 }
                 MediaPlayer.Event.EndReached -> {
+                    if (restartAfterUnreachableResume()) return
                     clearABRepeat()
                     getCurrentMedia()?.addFlags(MediaWrapper.MEDIA_FROM_START)
                     if (currentIndex != nextIndex) {

@@ -38,6 +38,19 @@ Requirements: a JDK 21, and an Android SDK with `platforms;android-36` and
 `build-tools;36.0.0`. `local.properties` is not optional: the root
 `build.gradle` reads it unconditionally.
 
+## Building for one ABI
+
+The APK carries the four ABIs libvlc ships, which is most of its ~130 MB,
+while a device loads exactly one of them:
+
+```sh
+./gradlew -PabiFilter=arm64-v8a :application:app:assembleDebug
+```
+
+`arm64-v8a` is the only ABI a 64-bit-only device -- a Quest 3 among them --
+can load, and the resulting APK is a fraction of the universal one to push
+over `adb`. Left unset, the build keeps every ABI.
+
 ## Installing next to an official VLC
 
 Upstream's `debug` build type already appends `.debug` to the application id,
