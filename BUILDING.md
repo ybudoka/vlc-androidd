@@ -29,6 +29,19 @@ Makefile (or a set of prebuilt `.so`) can be dropped there before running
 `assembleDebug`. Without them the APK builds and installs, but libvlc fails to
 load at startup.
 
+## Application id
+
+This build installs as `org.videolan.vlc.dev`, under the name `VLC (dev)`, so
+that it can sit next to an official VLC on the same device. Only the
+application id differs: the Java package is still `org.videolan.vlc`, which is
+what the JNI symbol names are built from, so libvlcjni does not have to be
+rebuilt (this is what `rename_package.sh` was for).
+
+To rename it again, change `applicationId` in `vlc-android/build.gradle` and
+`app_name` / `widget_name` in `vlc-android/res/values/strings.xml`. Nothing
+else refers to the package by name: the internal broadcasts and the widget are
+addressed through `getPackageName()`.
+
 ## CI
 
 `.github/workflows/build-apk.yml` runs `assembleDebug` on every push and
