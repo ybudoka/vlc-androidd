@@ -18,6 +18,16 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
+    <!--
+        A headset (Quest and the like) has neither a phone radio nor a
+        touchscreen. READ_PHONE_STATE implicitly requires
+        android.hardware.telephony, and a touchscreen is implicitly required by
+        every application: both have to be declared optional, otherwise the
+        package is considered incompatible with such a device.
+    -->
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
     <application
         android:name="org.videolan.vlc.VLCApplication"
         android:debuggable="true"

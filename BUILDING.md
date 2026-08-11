@@ -49,6 +49,21 @@ To rename it again, change `applicationId` in `vlc-android/build.gradle` and
 else refers to the package by name: the internal broadcasts and the widget are
 addressed through `getPackageName()`.
 
+## Headsets (Meta Quest 3)
+
+The package installs and shows up as a 2D application: `READ_PHONE_STATE`
+implies `android.hardware.telephony` and every application implicitly requires
+a touchscreen, so both are declared optional in the manifest, and the code no
+longer assumes a telephony service exists.
+
+Playing anything is another matter. Quest 3 runs 64-bit only, so it needs
+libvlc built for `arm64-v8a`, an ABI that did not exist when this tree was
+written (the NDK build here produces `armeabi-v7a` / `x86`). Without a
+loadable `libvlcjni.so` the application exits at startup -- `LibVLC`'s static
+initializer calls `System.exit(1)` when `System.loadLibrary("vlcjni")` fails.
+An arm64 libvlc from a current VLC build, dropped in
+`vlc-android/libs/arm64-v8a/`, is what this build is missing.
+
 ## CI
 
 `.github/workflows/build-apk.yml` runs `assembleDebug` on every push and

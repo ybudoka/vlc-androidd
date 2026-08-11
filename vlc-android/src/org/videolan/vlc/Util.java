@@ -302,7 +302,9 @@ public class Util {
 
     public static boolean isPhone(){
         TelephonyManager manager = (TelephonyManager)VLCApplication.getAppContext().getSystemService(Context.TELEPHONY_SERVICE);
-        if(manager.getPhoneType() == TelephonyManager.PHONE_TYPE_NONE){
+        /* A device without a radio -- a headset, most tablets -- may have no
+         * telephony service at all, in which case there is nothing to ask. */
+        if(manager == null || manager.getPhoneType() == TelephonyManager.PHONE_TYPE_NONE){
             return false;
         }else{
             return true;
