@@ -1,89 +1,50 @@
 # Building
 
-## The historical build (application + libvlc)
+This tree is [VLC for Android](https://code.videolan.org/videolan/vlc-android)
+upstream, taken at `cfee6d3`, with the changes needed to build it from Gradle
+alone. What came before -- the 0.1.4 tree from 2013 -- is in this branch's
+history.
 
-`compile.sh` / the top level `Makefile` build libvlc, its plugins and the JNI
-glue with the Android NDK, then package everything with `ant`. This is the only
-way to get a *working* APK, since the player is useless without the native
-libraries. It requires the old SDK tools (`ant` support was removed from the
-Android SDK after r25.2.5).
+## What is built, and what is not
 
-## The Gradle build (application only)
+libvlc and the media library are **not** built from source: the application
+takes them from Maven Central, which is what upstream's `debug` and `release`
+build types already do.
 
-A Gradle build is provided next to it so that the Java sources and the
-resources can be compiled and packaged with current tooling -- this is what the
-CI uses. It reuses the legacy directory layout as is (`vlc-android/src`,
-`vlc-android/res`, `java-libs/*`), no source file has been moved.
-
-```sh
-./gradlew assembleDebug
-# => vlc-android/build/outputs/apk/debug/vlc-android-debug.apk
+```
+org.videolan.android:libvlc-all:3.7.5
+org.videolan.android:medialibrary-all:0.13.22
 ```
 
-Requirements: a JDK 17 and an Android SDK with `platforms;android-33` and
-`build-tools;33.0.2` (`ANDROID_HOME` or `sdk.dir` in `local.properties`).
+Those artifacts ship the native libraries for `armeabi-v7a`, `arm64-v8a`,
+`x86` and `x86_64`, so the APK runs on 64-bit-only devices -- a Quest among
+them, which the 2013 tree could never do.
 
-`minSdkVersion` is raised from 7 to 14, the floor of current build tools, and
-`targetSdkVersion` from 18 to 23: Android 14 refuses to install a package
-targeting less than 23 ("the package appears to be invalid"). 23 is the lowest
-value that installs, and the highest one that keeps the legacy storage access
-this code base is written against -- it only costs the runtime storage
-permission asked for on startup.
+Building libvlc from source is what upstream's `dev` build type and the
+separate [libvlcjni](https://code.videolan.org/videolan/libvlcjni) repository
+are for. That repository is not checked out here, so `:libvlcjni:libvlc` is
+dropped from `settings.gradle` and the three `dev` dependencies on it point at
+the Maven artifact instead. Nothing else was changed to upstream's build.
 
-The native libraries are **not** built by Gradle. Anything found in
-`vlc-android/libs/<abi>/` is packaged into the APK, so a build made by the
-Makefile (or a set of prebuilt `.so`) can be dropped there before running
-`assembleDebug`. Without them the APK builds and installs, but libvlc fails to
-load at startup.
-
-## Application id
-
-This build installs as `org.videolan.vlc.dev`, under the name `VLC (dev)`, so
-that it can sit next to an official VLC on the same device. Only the
-application id differs: the Java package is still `org.videolan.vlc`, which is
-what the JNI symbol names are built from, so libvlcjni does not have to be
-rebuilt (this is what `rename_package.sh` was for).
-
-To rename it again, change `applicationId` in `vlc-android/build.gradle` and
-`app_name` / `widget_name` in `vlc-android/res/values/strings.xml`. Nothing
-else refers to the package by name: the internal broadcasts and the widget are
-addressed through `getPackageName()`.
-
-## Reading the log without a computer
-
-The application appends what it does at startup to `Download/vlc-dev.log`, so
-that it can be read from the device itself -- useful where plugging adb in is
-awkward, a headset in particular. The session header records the device, its
-supported ABIs and the native libraries the package ships, which is what tells
-a package that cannot run on a device from one that can. Crashes are appended
-there too, next to the usual `vlc_crash_*.log` and `vlc_logcat_*.log`.
-
-Until the storage permission is granted the public `Download` directory is not
-writable, and the log goes to `Android/data/org.videolan.vlc.dev/files/`
-instead; it moves to `Download` as soon as the permission is granted. To grant
-it upfront on a sideloaded install:
+## Building
 
 ```sh
-adb shell pm grant org.videolan.vlc.dev android.permission.WRITE_EXTERNAL_STORAGE
-adb shell pm grant org.videolan.vlc.dev android.permission.READ_EXTERNAL_STORAGE
+echo "sdk.dir=$ANDROID_HOME" > local.properties
+./gradlew :application:app:assembleDebug
+# => application/app/build/outputs/apk/debug/VLC-Android-<version>-debug-all.apk
 ```
 
-## Headsets (Meta Quest 3)
+Requirements: a JDK 21, and an Android SDK with `platforms;android-36` and
+`build-tools;36.0.0`. `local.properties` is not optional: the root
+`build.gradle` reads it unconditionally.
 
-The package installs and shows up as a 2D application: `READ_PHONE_STATE`
-implies `android.hardware.telephony` and every application implicitly requires
-a touchscreen, so both are declared optional in the manifest, and the code no
-longer assumes a telephony service exists.
+## Installing next to an official VLC
 
-Playing anything is another matter. Quest 3 runs 64-bit only, so it needs
-libvlc built for `arm64-v8a`, an ABI that did not exist when this tree was
-written (the NDK build here produces `armeabi-v7a` / `x86`). Without a
-loadable `libvlcjni.so` the application exits at startup -- `LibVLC`'s static
-initializer calls `System.exit(1)` when `System.loadLibrary("vlcjni")` fails.
-An arm64 libvlc from a current VLC build, dropped in
-`vlc-android/libs/arm64-v8a/`, is what this build is missing.
+Upstream's `debug` build type already appends `.debug` to the application id,
+so the APK installs as `org.videolan.vlc.debug` and coexists with a VLC from
+the store.
 
 ## CI
 
-`.github/workflows/build-apk.yml` runs `assembleDebug` on every push and
-uploads the APK as a build artifact (`vlc-debug-apk`).
+`.github/workflows/build-apk.yml` runs that build on every push and uploads
+the APK as a build artifact (`vlc-debug-apk`).

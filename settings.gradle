@@ -1,34 +1,27 @@
-/*
- * Gradle build of the Java/resources part of VLC for Android.
- *
- * The historical build is driven by the top level Makefile (ndk-build + ant).
- * That toolchain is not available anymore on current machines, so this Gradle
- * build is provided next to it to be able to compile, lint and package the
- * application -- typically from the CI. It reuses the legacy directory layout
- * as is, no source file is moved.
- */
 pluginManagement {
     repositories {
         google()
         mavenCentral()
-        gradlePluginPortal()
     }
 }
 
-dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-    }
+plugins {
+    id("com.android.settings") version '9.1.1'
 }
 
-rootProject.name = 'vlc-android'
+def vlcMajorVersion = hasProperty('forceVlc4') && getProperty('forceVlc4') ? 4 : 3
 
-include ':vlc-android'
-include ':ActionBarSherlock'
-include ':SlidingMenu'
-include ':WheelView'
+android {
+    minSdk = vlcMajorVersion == 3 ? 17 : 23
+    targetSdk = 36
+    compileSdk = 36 // Dockers: 3.0=36 / 4.0=36
+    buildToolsVersion = '36.0.0'
+}
 
-project(':ActionBarSherlock').projectDir = file('java-libs/ActionBarSherlock')
-project(':SlidingMenu').projectDir = file('java-libs/SlidingMenu')
-project(':WheelView').projectDir = file('java-libs/WheelView')
+// :libvlcjni:libvlc builds libvlc from source and lives in a separate
+// repository; this build takes libvlc from Maven instead, see build.gradle.
+include ':medialibrary'
+include ':application:tools', ':application:resources', ':application:mediadb', ':application:app', ':application:live-plot-graph', ':application:television', ':application:donations', ':application:remote-access-server'
+include ':application:vlc-android'
+include ':application:moviepedia'
+include ':application:remote-access-client'
