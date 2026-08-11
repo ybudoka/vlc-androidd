@@ -82,11 +82,18 @@ public class LibVLC {
         }
         try {
             System.loadLibrary("vlcjni");
+            FileLog.log("libvlcjni loaded");
         } catch (UnsatisfiedLinkError ule) {
+            /* This kills the process below, from a static initializer, without
+             * anything ever being displayed: leave a trace behind. */
+            FileLog.log("Can't load the vlcjni library, giving up. It is either "
+                    + "missing from the package, or built for another ABI than "
+                    + "this device's.", ule);
             Log.e(TAG, "Can't load vlcjni library: " + ule);
             /// FIXME Alert user
             System.exit(1);
         } catch (SecurityException se) {
+            FileLog.log("Not allowed to load the vlcjni library, giving up.", se);
             Log.e(TAG, "Encountered a security issue when loading vlcjni library: " + se);
             /// FIXME Alert user
             System.exit(1);

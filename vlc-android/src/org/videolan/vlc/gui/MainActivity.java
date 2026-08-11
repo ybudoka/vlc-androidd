@@ -21,6 +21,7 @@
 package org.videolan.vlc.gui;
 
 import android.os.Message;
+import org.videolan.libvlc.FileLog;
 import org.videolan.libvlc.LibVlcException;
 import org.videolan.libvlc.LibVlcUtil;
 import org.videolan.vlc.AudioService;
@@ -334,12 +335,16 @@ public class MainActivity extends SherlockFragmentActivity {
             return;
         for (int result : grantResults) {
             if (result == PackageManager.PERMISSION_GRANTED) {
+                /* The Download directory has just become writable */
+                FileLog.reset();
+                FileLog.log("storage permission granted");
                 /* The library was scanned without being allowed to read
                  * anything, it has to be scanned again. */
                 MediaLibrary.getInstance(this).loadMediaItems(this, true);
                 return;
             }
         }
+        FileLog.log("storage permission denied");
         Toast.makeText(this, R.string.storage_permission_denied, Toast.LENGTH_LONG).show();
     }
 

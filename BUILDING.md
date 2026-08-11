@@ -49,6 +49,25 @@ To rename it again, change `applicationId` in `vlc-android/build.gradle` and
 else refers to the package by name: the internal broadcasts and the widget are
 addressed through `getPackageName()`.
 
+## Reading the log without a computer
+
+The application appends what it does at startup to `Download/vlc-dev.log`, so
+that it can be read from the device itself -- useful where plugging adb in is
+awkward, a headset in particular. The session header records the device, its
+supported ABIs and the native libraries the package ships, which is what tells
+a package that cannot run on a device from one that can. Crashes are appended
+there too, next to the usual `vlc_crash_*.log` and `vlc_logcat_*.log`.
+
+Until the storage permission is granted the public `Download` directory is not
+writable, and the log goes to `Android/data/org.videolan.vlc.dev/files/`
+instead; it moves to `Download` as soon as the permission is granted. To grant
+it upfront on a sideloaded install:
+
+```sh
+adb shell pm grant org.videolan.vlc.dev android.permission.WRITE_EXTERNAL_STORAGE
+adb shell pm grant org.videolan.vlc.dev android.permission.READ_EXTERNAL_STORAGE
+```
+
 ## Headsets (Meta Quest 3)
 
 The package installs and shows up as a 2D application: `READ_PHONE_STATE`

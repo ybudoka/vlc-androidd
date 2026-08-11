@@ -19,14 +19,20 @@
  *****************************************************************************/
 package org.videolan.vlc;
 
+import java.io.File;
 import java.util.Locale;
+
+import org.videolan.libvlc.FileLog;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class VLCApplication extends Application {
@@ -72,8 +78,42 @@ public class VLCApplication extends Application {
 
         instance = this;
 
+        startFileLog();
+
         // Initialize the database soon enough to avoid any race condition and crash
         MediaDatabase.getInstance(this);
+    }
+
+    /**
+     * Open the log the user can read from the device itself, and record what
+     * tells apart a package that cannot run here from one that can: the native
+     * libraries it ships, and the ABIs this device accepts.
+     */
+    private void startFileLog() {
+        /* Used as long as the storage permission has not been granted, since
+         * the public Download directory is not writable before that. */
+        FileLog.setFallbackDirectory(getExternalFilesDir(null));
+
+        String version = "unknown version";
+        try {
+            PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
+            version = info.versionName + " (" + info.versionCode + ")";
+        } catch (NameNotFoundException e) {
+            Log.e(TAG, "package info not found.");
+        }
+        FileLog.logSession(getPackageName() + " " + version);
+
+        File libraryDir = new File(getApplicationInfo().nativeLibraryDir);
+        String[] libraries = libraryDir.list();
+        if (libraries == null || libraries.length == 0)
+            FileLog.log("no native library in " + libraryDir
+                    + ": libvlc has not been built into this package");
+        else
+            FileLog.log("native libraries in " + libraryDir + ": "
+                    + TextUtils.join(", ", libraries));
+
+        File log = FileLog.getFile();
+        Log.i(TAG, "Logging to " + (log != null ? log.getPath() : "logcat only"));
     }
 
     /**

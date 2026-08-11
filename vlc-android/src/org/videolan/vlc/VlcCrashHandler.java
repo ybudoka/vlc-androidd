@@ -22,6 +22,7 @@ package org.videolan.vlc;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -31,7 +32,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.Thread.UncaughtExceptionHandler;
 
-import android.os.Environment;
+import org.videolan.libvlc.FileLog;
+
 import android.text.format.DateFormat;
 import android.util.Log;
 
@@ -65,11 +67,16 @@ public class VlcCrashHandler implements UncaughtExceptionHandler {
         printWriter.close();
         Log.e(TAG, stacktrace);
 
-        // Save the log on SD card if available
-        if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            String sdcardPath = Environment.getExternalStorageDirectory().getPath();
-            writeLog(stacktrace, sdcardPath + "/vlc_crash");
-            writeLogcat(sdcardPath + "/vlc_logcat");
+        /* In the log the user can open from the device itself */
+        FileLog.log("Uncaught exception in thread " + thread.getName() + ":\n" + stacktrace);
+
+        // Save the log next to it, where the user will look for it
+        File directory = FileLog.getFile() != null
+                ? FileLog.getFile().getParentFile()
+                : null;
+        if(directory != null) {
+            writeLog(stacktrace, new File(directory, "vlc_crash").getPath());
+            writeLogcat(new File(directory, "vlc_logcat").getPath());
         }
 
         defaultUEH.uncaughtException(thread, ex);
