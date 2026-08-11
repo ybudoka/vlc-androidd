@@ -97,7 +97,8 @@ public class AudioService extends Service {
     public static final String ACTION_WIDGET_UPDATE_COVER = "org.videolan.vlc.widget.UPDATE_COVER";
     public static final String ACTION_WIDGET_UPDATE_POSITION = "org.videolan.vlc.widget.UPDATE_POSITION";
 
-    public static final String WIDGET_PACKAGE = "org.videolan.vlc";
+    /* The package is *not* hardcoded here: this build may be installed next to
+     * another VLC, and each one must only ever address its own widget. */
     public static final String WIDGET_CLASS = "org.videolan.vlc.widget.VLCAppWidgetProvider";
 
     private LibVLC mLibVLC;
@@ -554,6 +555,11 @@ public class AudioService extends Service {
                 Intent iPlay = new Intent(ACTION_REMOTE_PLAYPAUSE);
                 Intent iForward = new Intent(ACTION_REMOTE_FORWARD);
                 Intent iStop = new Intent(ACTION_REMOTE_STOP);
+                /* Keep the buttons of this notification for this application only */
+                iBackward.setPackage(getPackageName());
+                iPlay.setPackage(getPackageName());
+                iForward.setPackage(getPackageName());
+                iStop.setPackage(getPackageName());
                 PendingIntent piBackward = PendingIntent.getBroadcast(this, 0, iBackward, PendingIntent.FLAG_UPDATE_CURRENT);
                 PendingIntent piPlay = PendingIntent.getBroadcast(this, 0, iPlay, PendingIntent.FLAG_UPDATE_CURRENT);
                 PendingIntent piForward = PendingIntent.getBroadcast(this, 0, iForward, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -1073,7 +1079,7 @@ public class AudioService extends Service {
 
     private void updateWidgetState(Context context) {
         Intent i = new Intent();
-        i.setClassName(WIDGET_PACKAGE, WIDGET_CLASS);
+        i.setClassName(getPackageName(), WIDGET_CLASS);
         i.setAction(ACTION_WIDGET_UPDATE);
 
         if (mCurrentMedia != null) {
@@ -1092,7 +1098,7 @@ public class AudioService extends Service {
     private void updateWidgetCover(Context context)
     {
         Intent i = new Intent();
-        i.setClassName(WIDGET_PACKAGE, WIDGET_CLASS);
+        i.setClassName(getPackageName(), WIDGET_CLASS);
         i.setAction(ACTION_WIDGET_UPDATE_COVER);
 
         Bitmap cover = mCurrentMedia != null ? AudioUtil.getCover(this, mCurrentMedia, 64) : null;
@@ -1113,7 +1119,7 @@ public class AudioService extends Service {
 
         mWidgetPositionTimestamp = timestamp;
         Intent i = new Intent();
-        i.setClassName(WIDGET_PACKAGE, WIDGET_CLASS);
+        i.setClassName(getPackageName(), WIDGET_CLASS);
         i.setAction(ACTION_WIDGET_UPDATE_POSITION);
         i.putExtra("position", pos);
         sendBroadcast(i);

@@ -2,8 +2,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Main VLC Interface -->
-    <string name="app_name" translatable="false">VLC</string>
-    <string name="widget_name" translatable="false">VLC mini player</string>
+    <!-- Named apart from the official VLC so that both can be told apart in
+         the launcher, the widget picker and the app list. -->
+    <string name="app_name" translatable="false">VLC (dev)</string>
+    <string name="widget_name" translatable="false">VLC (dev) mini player</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="other">Other</string>

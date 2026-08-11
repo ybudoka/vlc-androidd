@@ -6,7 +6,13 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        applicationId 'org.videolan.vlc'
+        /*
+         * Deliberately different from the upstream org.videolan.vlc, so that
+         * this build can be installed next to an official VLC. Everything that
+         * is addressed by package name at runtime uses getPackageName(), not a
+         * hardcoded string, so the two installs never talk to each other.
+         */
+        applicationId 'org.videolan.vlc.dev'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
     }

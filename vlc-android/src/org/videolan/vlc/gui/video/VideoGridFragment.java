@@ -436,6 +436,7 @@ public class VideoGridFragment extends SherlockGridFragment implements ISortable
             return;
         Intent intent = new Intent();
         intent.setAction(ACTION_SCAN_START);
+        intent.setPackage(context.getPackageName());
         context.getApplicationContext().sendBroadcast(intent);
     }
 
@@ -444,6 +445,7 @@ public class VideoGridFragment extends SherlockGridFragment implements ISortable
             return;
         Intent intent = new Intent();
         intent.setAction(ACTION_SCAN_STOP);
+        intent.setPackage(context.getPackageName());
         context.getApplicationContext().sendBroadcast(intent);
     }
 }

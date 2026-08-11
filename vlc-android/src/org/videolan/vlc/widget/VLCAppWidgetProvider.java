@@ -48,7 +48,9 @@ public class VLCAppWidgetProvider extends AppWidgetProvider {
     public static final String ACTION_WIDGET_UPDATE_COVER = "org.videolan.vlc.widget.UPDATE_COVER";
     public static final String ACTION_WIDGET_UPDATE_POSITION = "org.videolan.vlc.widget.UPDATE_POSITION";
 
-    public static final String VLC_PACKAGE = "org.videolan.vlc";
+    /* The package is taken from the context, never hardcoded: this build may be
+     * installed next to another VLC, and the widget must only ever address the
+     * application it belongs to. */
     public static final String VLC_SERVICE = "org.videolan.vlc.AudioService";
     public static final String VLC_PLAYER = "org.videolan.vlc.gui.audio.AudioPlayerActivity";
     public static final String VLC_MAIN = "org.videolan.vlc.gui.MainActivity";
@@ -63,7 +65,7 @@ public class VLCAppWidgetProvider extends AppWidgetProvider {
 
         /* ask a refresh from the service if there is one */
         i = new Intent(ACTION_WIDGET_INIT);
-        i.setPackage(VLC_PACKAGE);
+        i.setPackage(context.getPackageName());
         context.sendBroadcast(i);
     }
 
@@ -85,8 +87,13 @@ public class VLCAppWidgetProvider extends AppWidgetProvider {
             Intent iPlay = new Intent(ACTION_REMOTE_PLAYPAUSE);
             Intent iStop = new Intent(ACTION_REMOTE_STOP);
             Intent iForward = new Intent(ACTION_REMOTE_FORWARD);
+            /* Keep the buttons of this widget for this application only */
+            iBackward.setPackage(context.getPackageName());
+            iPlay.setPackage(context.getPackageName());
+            iStop.setPackage(context.getPackageName());
+            iForward.setPackage(context.getPackageName());
             Intent iVlc = new Intent();
-            iVlc.setClassName(VLC_PACKAGE, VLC_MAIN);
+            iVlc.setClassName(context.getPackageName(), VLC_MAIN);
             iVlc.putExtra(START_FROM_NOTIFICATION, true);
 
             PendingIntent piBackward = PendingIntent.getBroadcast(context, 0, iBackward, PendingIntent.FLAG_UPDATE_CURRENT);

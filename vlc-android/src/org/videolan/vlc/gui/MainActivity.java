@@ -489,6 +489,7 @@ public class MainActivity extends SherlockFragmentActivity {
             // Restore last playlist
             case R.id.ml_menu_last_playlist:
                 Intent i = new Intent(AudioService.ACTION_REMOTE_LAST_PLAYLIST);
+                i.setPackage(getPackageName());
                 sendBroadcast(i);
                 break;
             // Open MRL
@@ -614,6 +615,7 @@ public class MainActivity extends SherlockFragmentActivity {
             return;
         Intent intent = new Intent();
         intent.setAction(ACTION_SHOW_PROGRESSBAR);
+        intent.setPackage(context.getPackageName());
         context.getApplicationContext().sendBroadcast(intent);
     }
 
@@ -622,6 +624,7 @@ public class MainActivity extends SherlockFragmentActivity {
             return;
         Intent intent = new Intent();
         intent.setAction(ACTION_HIDE_PROGRESSBAR);
+        intent.setPackage(context.getPackageName());
         context.getApplicationContext().sendBroadcast(intent);
     }
 
@@ -633,6 +636,7 @@ public class MainActivity extends SherlockFragmentActivity {
         intent.putExtra("info", info);
         intent.putExtra("progress", progress);
         intent.putExtra("max", max);
+        intent.setPackage(context.getPackageName());
         context.getApplicationContext().sendBroadcast(intent);
     }
 
