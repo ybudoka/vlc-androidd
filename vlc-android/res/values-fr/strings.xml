@@ -125,6 +125,7 @@
     <string name="encountered_error_title">Erreur de lecture</string>
     <string name="encountered_error_message">Une erreur est survenue à la lecture de ce média.\nVous devriez peut-être rafraîchir votre bibliothèque multimédia.</string>
     <string name="invalid_location">Le media %1$s ne peux pas être lu.</string>
+    <string name="storage_permission_denied">Sans accès au stockage, VLC ne peut trouver aucun média</string>
     <string name="resume_playback_at">Reprise à %1$s</string>
     <string name="resume_failed">Impossible de reprendre où vous vous étiez arrêté, lecture depuis le début</string>
 

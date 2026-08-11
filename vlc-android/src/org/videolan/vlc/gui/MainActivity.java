@@ -35,6 +35,7 @@ import org.videolan.vlc.gui.video.VideoListAdapter;
 import org.videolan.vlc.interfaces.ISortable;
 import org.videolan.vlc.widget.AudioMiniPlayer;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -46,6 +47,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -71,6 +73,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -111,6 +114,8 @@ public class MainActivity extends SherlockFragmentActivity {
     private boolean mScanNeeded = true;
 
     private Handler mHandler = new MainActivityHandler(this);
+
+    private static final int STORAGE_PERMISSION_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -302,6 +307,40 @@ public class MainActivity extends SherlockFragmentActivity {
         /* Load media items from database and storage */
         if (mScanNeeded)
             MediaLibrary.getInstance(this).loadMediaItems(this);
+
+        requestStoragePermission();
+    }
+
+    /**
+     * Since API 23 the storage permission is granted by the user at runtime,
+     * and without it the media library sees an empty device.
+     */
+    @TargetApi(Build.VERSION_CODES.M)
+    private void requestStoragePermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+            return;
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED)
+            return;
+        requestPermissions(new String[] {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE }, STORAGE_PERMISSION_REQUEST);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            int[] grantResults) {
+        if (requestCode != STORAGE_PERMISSION_REQUEST)
+            return;
+        for (int result : grantResults) {
+            if (result == PackageManager.PERMISSION_GRANTED) {
+                /* The library was scanned without being allowed to read
+                 * anything, it has to be scanned again. */
+                MediaLibrary.getInstance(this).loadMediaItems(this, true);
+                return;
+            }
+        }
+        Toast.makeText(this, R.string.storage_permission_denied, Toast.LENGTH_LONG).show();
     }
 
     @Override

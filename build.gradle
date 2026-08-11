@@ -4,7 +4,15 @@ buildscript {
         compileSdkVersion = 33
         buildToolsVersion = '33.0.2'
         minSdkVersion = 14
-        targetSdkVersion = 18
+        /*
+         * 23 is the lowest targetSdkVersion Android 14 accepts to install: below
+         * that the installer rejects the package ("the package appears to be
+         * invalid"). It is also the version that introduced runtime
+         * permissions, hence the storage permission asked for in MainActivity.
+         * Staying at 23 keeps the legacy (non-scoped) storage access this code
+         * base relies on.
+         */
+        targetSdkVersion = 23
     }
 }
 

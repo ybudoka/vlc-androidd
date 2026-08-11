@@ -23,6 +23,13 @@ CI uses. It reuses the legacy directory layout as is (`vlc-android/src`,
 Requirements: a JDK 17 and an Android SDK with `platforms;android-33` and
 `build-tools;33.0.2` (`ANDROID_HOME` or `sdk.dir` in `local.properties`).
 
+`minSdkVersion` is raised from 7 to 14, the floor of current build tools, and
+`targetSdkVersion` from 18 to 23: Android 14 refuses to install a package
+targeting less than 23 ("the package appears to be invalid"). 23 is the lowest
+value that installs, and the highest one that keeps the legacy storage access
+this code base is written against -- it only costs the runtime storage
+permission asked for on startup.
+
 The native libraries are **not** built by Gradle. Anything found in
 `vlc-android/libs/<abi>/` is packaged into the APK, so a build made by the
 Makefile (or a set of prebuilt `.so`) can be dropped there before running
